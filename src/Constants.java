@@ -12,7 +12,7 @@ public class Constants {
 	
 	public static final String POSTGRES_DATABASE="SELECT datname FROM pg_database WHERE datistemplate = false";
 	public static final String POSTGRES_SCHEMA="SELECT schema_name from information_schema.schemata";
-	public static final String POSTGRES_TABLE="SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname like ";
+	public static final String POSTGRES_TABLE="SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname like ?";
 	public static final String POSTGRES_HOST="SELECT inet_server_addr()";
 	public static final String POSTGRES_PORT="SELECT inet_server_port()";
 	public static final String POSTGRES_CURRENT_DATABASE="SELECT current_database()";
