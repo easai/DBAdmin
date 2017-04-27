@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<project basedir="." default="jar" name="DBAdmin">
+	<target name="jar" depends="build">
+		<jar jarfile="deps.jar">
+			<zipgroupfileset dir="lib">
+				<include name="*.jar" />
+			</zipgroupfileset>
+		</jar>
+		<sleep seconds="1" />
+
+		<jar jarfile="DBAdminFrame.jar" basedir="bin">
+			<manifest>
+				<attribute name="Main-Class" value="DBAdminFrame" />
+			</manifest>
+			<zipfileset src="deps.jar" excludes="META-INF/*.SF" />
+		</jar>
+
+	</target>
+	<target name="init">
+		<mkdir dir="bin" />
+		<copy includeemptydirs="false" todir="bin">
+			<fileset dir="src">
+				<exclude name="**/*.launch" />
+				<exclude name="**/*.java" />
+			</fileset>
+		</copy>
+	</target>
+	<path id="classpath">
+		<pathelement location="bin" />
+		<fileset dir="lib" includes="*.jar" />
+	</path>
+	<target depends="init" name="build">
+		<javac destdir="bin" includeantruntime="false">
+			<src path="src" />
+			<classpath refid="classpath" />
+		</javac>
+		<copy file="files/logback.xml" todir="bin" />
+	</target>
+	<target name="clean">
+		<delete dir="bin" />
+		<delete>
+			<fileset dir="." includes="*.jar" />
+		</delete>
+	</target>
+</project>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE logback>
+<configuration>
+
+	<timestamp key="time" datePattern="yyyy-MM-dd_HHmmss" />
+
+	<appender name="FILE" class="ch.qos.logback.core.FileAppender">
+		<file>log/DBTest-${time}.log</file>
+		<encoder>
+			<charset>UTF-8</charset>
+			<pattern>%-7([%level]) %m%n</pattern>
+		</encoder>
+
+	</appender>
+
+	<root>
+		<appender-ref ref="FILE" />
+	</root>
+</configuration>
