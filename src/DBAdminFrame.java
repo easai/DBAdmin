@@ -40,7 +40,7 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 
 	private static Logger log = LoggerFactory.getLogger(DBAdminFrame.class);
 
-	DBAdmin dbAdmin = new DBAdmin();
+	DBAdmin dbAdmin =new DBAdmin();
 
 	JMenuBar mb = new JMenuBar();
 	JTextArea sql = new JTextArea();
@@ -205,8 +205,6 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		if(0<=index){
 			table=dbTable.substring(index+1);
 		}
-		//sqlStr=replaceParam(sqlStr,new String[]{table, field});		
-		//String res = dbAdmin.getRecord(sqlStr);
 		String res = dbAdmin.getRecord(sqlStr,new String[]{table, field});
 		result.setText(res);
 		setTitle(field);
@@ -268,21 +266,24 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		return dbAdmin.getList(sqlStr,new String[]{schema, table});		
 	}
 	
-	public String hostname() {	
-		String list[]=new String[]{Constants.TSQL_DATABASE,Constants.POSTGRES_DATABASE,Constants.MYSQL_DATABASE};
+	public String hostname() {
+		String str="";
+		str= database();
+		
+		String[] list=new String[]{Constants.TSQL_HOST,Constants.POSTGRES_HOST,Constants.MYSQL_HOST};
 		String sqlStr = list[dbType.ordinal()];
-		list=new String[]{Constants.TSQL_HOST,Constants.POSTGRES_HOST,Constants.MYSQL_HOST};
-		sqlStr = list[dbType.ordinal()];
-		String res = dbAdmin.getRecord(sqlStr);
-
-		sqlStr = Constants.TSQL_PORT;
-		if (dbAdmin.database != null && dbAdmin.database.equals("postgres")) {
-			sqlStr = Constants.POSTGRES_PORT;
-		}
+		String res=dbAdmin.getRecord(sqlStr);
 		if (res != null && !res.isEmpty()) {
-			res += ":" + dbAdmin.getRecord(sqlStr);
+			str += ":"+res;
 		}
-		return res;
+
+		list=new String[]{Constants.TSQL_PORT,Constants.POSTGRES_PORT,Constants.MYSQL_PORT};
+		sqlStr = list[dbType.ordinal()];
+		res=dbAdmin.getRecord(sqlStr);
+		if (res != null && !res.isEmpty()) {
+			str+= ":" + res;
+		}
+		return str;
 	}
 
 	public String database() {

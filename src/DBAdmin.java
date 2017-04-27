@@ -43,10 +43,6 @@ public class DBAdmin {
 
 	Properties prop = new Properties();
 
-	DBAdmin() {
-		readIniFile();
-	}
-
 	public void readIniFile() {
 		try {
 			log.info("Reading INI file: " + _iniFile);
@@ -340,6 +336,7 @@ public class DBAdmin {
 				db._iniFile = cmd.getOptionValue(Constants.OPTION_INI);
 			}
 
+			db.readIniFile();
 			db.read();
 		} catch (Exception e) {
 			log.error("Error starting DBAdmin", e);
