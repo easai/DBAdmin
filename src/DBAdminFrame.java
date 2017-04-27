@@ -48,7 +48,7 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 	JPopupMenu popup = new JPopupMenu();	
 	JLabel statusBar=new JLabel("");
 	String dbTable="";
-	JTree tree=new JTree();
+	SchemaTree tree=new SchemaTree(this);
 
 	enum Database{TSQL, POSTGRES, MYSQL};
 	Database dbType=Database.TSQL;
@@ -270,14 +270,7 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 
 		String schemaList[]=dbAdmin.getList(sqlStr);
 		
-		DefaultTreeModel model = (DefaultTreeModel)tree.getModel();
-		DefaultMutableTreeNode root = (DefaultMutableTreeNode)model.getRoot();		
-		root.removeAllChildren();
-		for(int i=0;i<schemaList.length;i++){
-			root.add(new DefaultMutableTreeNode(schemaList[i]));
-		}
-		model.reload(root);
-		tree.setRootVisible(false);
+		tree.setTree(schemaList);
 	}
 
 	public String hostname() {	
@@ -315,19 +308,12 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		popup.setVisible(false);
 	}
 
-	public void listTable() {
-		String schema = sql.getText().trim();
-		if (schema.isEmpty()) {
-			schema = result.getSelectedText();
-		}
-		String sqlStr = Constants.TSQL_TABLE + " '" + schema + "'";
-		if (dbAdmin.database.equals("postgres")) {
-			sqlStr = Constants.POSTGRES_TABLE + " '" + schema + "'";
-		}
-		String res = dbAdmin.getRecord(sqlStr, false, schema + ".");
-		result.setText(res);
-		setStatusBar("Schema: "+schema);
+	public String[] listTable(String schema) {
+		String list[]=new String[]{Constants.TSQL_TABLE,Constants.POSTGRES_TABLE,Constants.MYSQL_TABLE};
+		String sqlStr = list[dbType.ordinal()];
+		String dbList[] = dbAdmin.getList(sqlStr, new String[]{schema});
 		setTitle(schema);
+		return dbList;
 	}
 
 	public void openIniFile() {

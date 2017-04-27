@@ -169,23 +169,33 @@ public class DBAdmin {
 	}
 
 	public String[] getList(String sql) {
+		return getList(sql, null);
+	}
+
+	public String[] getList(String sql, String paramList[]) {
 		ResultSet resultSet;
 		ArrayList<String> array = new ArrayList<>();
-		String list[]=null;
+		String list[] = null;
 		try {
 			if (database.isEmpty()) {
 				throw new Exception("Database configuration error");
 			}
 			log.info("URL: " + jdbc_url + dbName);
 			log.info("Database: " + dbName);
+			log.info("SQL: " + sql);
 			Class.forName(driver);
 			Connection con = DriverManager.getConnection(jdbc_url + dbName,
 					user, password);
 			con.setAutoCommit(true);
-			Statement statement = con.createStatement();
 
-			log.info("SQL: " + sql);
-			resultSet = statement.executeQuery(sql);
+			PreparedStatement statement = con.prepareStatement(sql);
+			if (paramList != null) {
+				for (int i = 0; i < paramList.length; i++) {
+					statement.setString(i + 1, paramList[i]);
+				}
+			}
+			
+			resultSet = statement.executeQuery();
 			ResultSetMetaData rsmd = resultSet.getMetaData();
 			String field = "";
 			while (resultSet.next()) {

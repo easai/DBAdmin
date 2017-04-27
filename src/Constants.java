@@ -4,7 +4,7 @@ public class Constants {
 	
 	public static final String TSQL_DATABASE="SELECT name FROM sys.databases";
 	public static final String TSQL_SCHEMA="SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA";
-	public static final String TSQL_TABLE="SELECT table_name FROM information_schema.tables WHERE table_type='BASE TABLE' AND table_schema like ";
+	public static final String TSQL_TABLE="SELECT table_name FROM information_schema.tables WHERE table_type='BASE TABLE' AND table_schema like ?";
 	public static final String TSQL_HOST="SELECT HOST_NAME()";
 	public static final String TSQL_PORT="SELECT distinct local_tcp_port from sys.dm_exec_connections where local_net_address is not null";
 	public static final String TSQL_CURRENT_DATABASE="SELECT DB_NAME()";
