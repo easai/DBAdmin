@@ -165,13 +165,14 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 
 	public void setDBType(){
 		if(!dbAdmin.database.isEmpty()){
-			if(dbAdmin.database.equals("TSQL")){
+			if(dbAdmin.database.toUpperCase().equals("TSQL")){
 				dbType=Database.TSQL;
-			}else if(dbAdmin.database.equals("POSTGRES")){
+			}else if(dbAdmin.database.toUpperCase().equals("POSTGRES")){
 				dbType=Database.POSTGRES;
 			}else{
 				dbType=Database.MYSQL;
 			}
+			log.info("Database set:"+dbType.name());
 		}
 	}
 	
@@ -203,10 +204,9 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		
 		String list[]=dbTable.split("\\.");
 		String table=dbTable;
-		System.out.println(dbTable);
+		
 		if(0<list.length){
-			table=list[1];
-			System.out.println(list[1]);
+			table=list[1];			
 		}
 		if (dbAdmin.database.equals("postgres")) {
 			sqlStr = Constants.POSTGRES_COLUMN;

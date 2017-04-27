@@ -9,6 +9,10 @@ import javax.swing.JTextArea;
 
 public class DBListFrame extends JFrame implements MouseListener{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	DBAdminFrame admin=null;
 	JPopupMenu popup = new JPopupMenu();
 	JTextArea textArea=new JTextArea();
