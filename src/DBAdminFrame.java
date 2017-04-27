@@ -1,6 +1,7 @@
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -49,6 +50,7 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 	JLabel statusBar = new JLabel("");
 	String dbTable = "";
 	SchemaTree tree = new SchemaTree(this);
+	JSplitPane bottomSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 
 	enum Database {
 		TSQL, POSTGRES, MYSQL
@@ -56,6 +58,15 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 
 	Database dbType = Database.TSQL;
 
+	private boolean painted;
+	public void paint(Graphics g){
+		super.paint(g);
+		if(!painted){
+			painted=true;
+			bottomSplit.setDividerLocation(.25);
+		}
+	}
+	
 	public void init() {
 		dbAdmin.readIniFile();
 
@@ -132,10 +143,12 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		JSplitPane splitPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 		splitPanel.setTopComponent(new JScrollPane(sql));
 
-		JSplitPane bottomSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+		
+		
 		listSchemaTree();
 		bottomSplit.setLeftComponent(new JScrollPane(tree));
 		bottomSplit.setRightComponent(new JScrollPane(result));
+		
 		splitPanel.setBottomComponent(bottomSplit);
 
 		Container pane = getContentPane();
