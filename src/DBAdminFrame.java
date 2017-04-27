@@ -190,7 +190,7 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 	}
 
 	public void setStatusBar(String str) {
-		String label = "Database: " + database() + " " + str;
+		String label = "Host: "+hostname()+" Database: " + database() + " " + str;
 		statusBar.setText(label);
 	}
 
@@ -235,29 +235,7 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		String res = dbAdmin.getRecord(sqlStr, new String[] { table, field });
 		result.setText(res);
 		setTitle(field);
-		setStatusBar(" Table: " + dbTable + " Field: " + field);
-	}
-
-	public String replaceParam(String str, String[] list) {
-		String res = "";
-		int index = 0;
-		int count = 0;
-		int prev = 0;
-		while ((index = str.indexOf('?', index)) != -1) {
-			if (count < list.length) {
-				if (prev < index) {
-					res += str.substring(prev, index);
-				}
-				res += list[count];
-				count++;
-			}
-			index++;
-			prev = index;
-		}
-		if (prev < str.length()) {
-			res += str.substring(prev);
-		}
-		return res;
+		setStatusBar(" Table: " + table + " Field: " + field);
 	}
 
 	public void executeSQL() {
@@ -294,25 +272,26 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		String list[] = new String[] { Constants.TSQL_LIST_COLUMN,
 				Constants.POSTGRES_LIST_COLUMN, Constants.MYSQL_LIST_COLUMN };
 		String sqlStr = list[dbType.ordinal()];
+		setTitle(schema+"."+table);
+		setStatusBar(" Schema: "+schema+" Table: "+table);
 		return dbAdmin.getList(sqlStr, new String[] { schema, table });
 	}
 
 	public String hostname() {
-		String str = "";
-		str = database();
+		String str = "";		
 
 		String[] list = new String[] { Constants.TSQL_HOST,
 				Constants.POSTGRES_HOST, Constants.MYSQL_HOST };
 		String sqlStr = list[dbType.ordinal()];
-		String res = dbAdmin.getRecord(sqlStr);
+		String res = dbAdmin.getRecord(sqlStr, false);
 		if (res != null && !res.isEmpty()) {
-			str += ":" + res;
+			str += res;
 		}
 
 		list = new String[] { Constants.TSQL_PORT, Constants.POSTGRES_PORT,
 				Constants.MYSQL_PORT };
 		sqlStr = list[dbType.ordinal()];
-		res = dbAdmin.getRecord(sqlStr);
+		res = dbAdmin.getRecord(sqlStr, false);
 		if (res != null && !res.isEmpty()) {
 			str += ":" + res;
 		}
@@ -338,6 +317,7 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		setTitle(hostname() + ":" + database());
 		popup.setVisible(false);
 		listSchemaTree();
+		setStatusBar("");
 	}
 
 	public String[] listTable(String schema) {
@@ -346,6 +326,7 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		String sqlStr = list[dbType.ordinal()];
 		String dbList[] = dbAdmin.getList(sqlStr, new String[] { schema });
 		setTitle(schema);
+		setStatusBar(" Schema: "+schema);
 		return dbList;
 	}
 
@@ -362,6 +343,7 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 			setTitle(hostname());
 			setDBType();
 			listSchemaTree();
+			setStatusBar("");
 		}
 	}
 
