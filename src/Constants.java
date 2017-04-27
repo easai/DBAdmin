@@ -9,6 +9,7 @@ public class Constants {
 	public static final String TSQL_PORT="SELECT distinct local_tcp_port from sys.dm_exec_connections where local_net_address is not null";
 	public static final String TSQL_CURRENT_DATABASE="SELECT DB_NAME()";
 	public static final String TSQL_COLUMN="SELECT * FROM INFORMATION_SCHEMA.COLUMNS Where TABLE_NAME = ? AND COLUMN_NAME=?";
+	public static final String TSQL_LIST_COLUMN="SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS Where TABLE_SCHEMA = ? AND TABLE_NAME=?";
 	
 	public static final String POSTGRES_DATABASE="SELECT datname FROM pg_database WHERE datistemplate = false";
 	public static final String POSTGRES_SCHEMA="SELECT schema_name from information_schema.schemata";
@@ -17,12 +18,14 @@ public class Constants {
 	public static final String POSTGRES_PORT="SELECT inet_server_port()";
 	public static final String POSTGRES_CURRENT_DATABASE="SELECT current_database()";
 	public static final String POSTGRES_COLUMN="";
+	public static final String POSTGRES_LIST_COLUMN="select column_name from information_schema.columns where (table_name=? OR TRUE) AND table_name=?";
 	
 	public static final String MYSQL_DATABASE="SHOW DATABASES";
 	public static final String MYSQL_SCHEMA="SHOW TABLES";
-	public static final String MYSQL_TABLE="DESCRIBE ";
+	public static final String MYSQL_TABLE="DESCRIBE ?";
 	public static final String MYSQL_HOST="SHOW variables like 'hostname'";
 	public static final String MYSQL_PORT="SHOW variables like ‘port’";
 	public static final String MYSQL_CURRENT_DATABASE="SELECT database()";
 	public static final String MYSQL_COLUMN="";
+	public static final String MYSQL_LIST_COLUMN="SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=? AND TABLE_NAME=?";
 }

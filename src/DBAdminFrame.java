@@ -262,6 +262,12 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		tree.setTree(schemaList);
 	}
 
+	public String[] listColumn(String schema, String table) {
+		String list[]=new String[]{Constants.TSQL_LIST_COLUMN,Constants.POSTGRES_LIST_COLUMN,Constants.MYSQL_LIST_COLUMN};
+		String sqlStr = list[dbType.ordinal()];		
+		return dbAdmin.getList(sqlStr,new String[]{schema, table});		
+	}
+	
 	public String hostname() {	
 		String list[]=new String[]{Constants.TSQL_DATABASE,Constants.POSTGRES_DATABASE,Constants.MYSQL_DATABASE};
 		String sqlStr = list[dbType.ordinal()];
