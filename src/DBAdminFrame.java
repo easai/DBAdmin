@@ -40,19 +40,22 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 
 	private static Logger log = LoggerFactory.getLogger(DBAdminFrame.class);
 
-	DBAdmin dbAdmin =new DBAdmin();
+	DBAdmin dbAdmin = new DBAdmin();
 
 	JMenuBar mb = new JMenuBar();
 	JTextArea sql = new JTextArea();
 	JTextArea result = new JTextArea();
-	JPopupMenu popup = new JPopupMenu();	
-	JLabel statusBar=new JLabel("");
-	String dbTable="";
-	SchemaTree tree=new SchemaTree(this);
+	JPopupMenu popup = new JPopupMenu();
+	JLabel statusBar = new JLabel("");
+	String dbTable = "";
+	SchemaTree tree = new SchemaTree(this);
 
-	enum Database{TSQL, POSTGRES, MYSQL};
-	Database dbType=Database.TSQL;
-	
+	enum Database {
+		TSQL, POSTGRES, MYSQL
+	};
+
+	Database dbType = Database.TSQL;
+
 	public void init() {
 		dbAdmin.readIniFile();
 
@@ -70,11 +73,11 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		mb.add(mSQL);
 
 		JMenu mDatabase = new JMenu("Database");
-		JMenuItem miAllDB = new JMenuItem("Database");		
+		JMenuItem miAllDB = new JMenuItem("Database");
 		JMenuItem miSchema = new JMenuItem("Schema");
 		JMenuItem miTable = new JMenuItem("Table");
 		JMenuItem miDescribe = new JMenuItem("Describe Schema.Table");
-		JMenuItem miField= new JMenuItem("Describe Field");
+		JMenuItem miField = new JMenuItem("Describe Field");
 		mDatabase.add(miAllDB);
 		mb.add(mDatabase);
 
@@ -104,7 +107,7 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 				listDatabase();
 			}
 		});
-		
+
 		miSchema.addActionListener(new ActionAdaptor() {
 			public void actionPerformed(ActionEvent e) {
 				listSchema();
@@ -114,101 +117,112 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		miField.addActionListener(new ActionAdaptor() {
 			public void actionPerformed(ActionEvent e) {
 				describeField();
-				popup.setVisible(false);				
+				popup.setVisible(false);
 			}
 		});
 
 		setJMenuBar(mb);
 
 		result.addMouseListener(this);
-		
+
 		popup.add(miTable);
 		popup.add(miDescribe);
 		popup.add(miField);
 
-		JSplitPane splitPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT);		
+		JSplitPane splitPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 		splitPanel.setTopComponent(new JScrollPane(sql));
 
-		JSplitPane bottomSplit=new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+		JSplitPane bottomSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 		listSchemaTree();
-		bottomSplit.setLeftComponent(new JScrollPane(tree));		
+		bottomSplit.setLeftComponent(new JScrollPane(tree));
 		bottomSplit.setRightComponent(new JScrollPane(result));
 		splitPanel.setBottomComponent(bottomSplit);
 
-		Container pane=getContentPane();
-		pane.add(splitPanel,BorderLayout.CENTER);
+		Container pane = getContentPane();
+		pane.add(splitPanel, BorderLayout.CENTER);
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-		JPanel statusPanel=new JPanel();
+
+		JPanel statusPanel = new JPanel();
 		statusPanel.setBorder(new BevelBorder(BevelBorder.LOWERED));
-		pane.add(statusPanel,BorderLayout.SOUTH);
-		statusPanel.setPreferredSize(new Dimension(getWidth(),20));
+		pane.add(statusPanel, BorderLayout.SOUTH);
+		statusPanel.setPreferredSize(new Dimension(getWidth(), 20));
 		statusPanel.setLayout(new BoxLayout(statusPanel, BoxLayout.X_AXIS));
-		statusBar.setHorizontalAlignment(SwingConstants.LEFT);		
+		statusBar.setHorizontalAlignment(SwingConstants.LEFT);
 		statusPanel.add(statusBar);
-		
+
 		setDBType();
-		
+
 		setSize(1000, 700);
-		String title=hostname();
-		String db=database();
-		if(!db.isEmpty()){
-			title+=" :"+db;
+		String title = hostname();
+		String db = database();
+		if (!db.isEmpty()) {
+			title += " :" + db;
 		}
 		setTitle(title);
 		setVisible(true);
 	}
 
-	public void setDBType(){
-		if(!dbAdmin.database.isEmpty()){
-			if(dbAdmin.database.toUpperCase().equals("TSQL")){
-				dbType=Database.TSQL;
-			}else if(dbAdmin.database.toUpperCase().equals("POSTGRES")){
-				dbType=Database.POSTGRES;
-			}else{
-				dbType=Database.MYSQL;
+	public void setDBType() {
+		if (!dbAdmin.database.isEmpty()) {
+			if (dbAdmin.database.toUpperCase().equals("TSQL")) {
+				dbType = Database.TSQL;
+			} else if (dbAdmin.database.toUpperCase().equals("POSTGRES")) {
+				dbType = Database.POSTGRES;
+			} else {
+				dbType = Database.MYSQL;
 			}
-			log.info("Database set:"+dbType.name());
+			log.info("Database set:" + dbType.name());
 		}
 	}
-	
-	public void setStatusBar(String str){		
-		String label="Database: "+database()+" "+str;
+
+	public void setStatusBar(String str) {
+		String label = "Database: " + database() + " " + str;
 		statusBar.setText(label);
 	}
-	
+
 	public void describeTable() {
 		String table = sql.getText();
 		if (table.isEmpty()) {
 			table = result.getSelectedText();
 		}
-		table=table.trim();
-		dbTable=table;
+		table = table.trim();
+		dbTable = table;
 		String res = dbAdmin.describe(table);
 		result.setText(res);
 		setTitle(table);
-		setStatusBar(" Table: "+table);
+		setStatusBar(" Table: " + table);
 	}
-	
+
 	public void describeField() {
 		String field = sql.getText();
 		if (field.isEmpty()) {
 			field = result.getSelectedText();
-		}		
-		field=field.trim();
-		String list[]=new String[]{Constants.TSQL_COLUMN,Constants.POSTGRES_COLUMN,Constants.MYSQL_COLUMN};
-		String sqlStr = list[dbType.ordinal()];
-				
-		String table=dbTable;
-		int index=dbTable.indexOf('.');		
-		if(0<=index){
-			table=dbTable.substring(index+1);
 		}
-		String res = dbAdmin.getRecord(sqlStr,new String[]{table, field});
+		field = field.trim();
+		String list[] = new String[] { Constants.TSQL_COLUMN,
+				Constants.POSTGRES_COLUMN, Constants.MYSQL_COLUMN };
+		String sqlStr = list[dbType.ordinal()];
+
+		String table = dbTable;
+		int index = dbTable.indexOf('.');
+		if (0 <= index) {
+			table = dbTable.substring(index + 1);
+		}
+		String res = dbAdmin.getRecord(sqlStr, new String[] { table, field });
 		result.setText(res);
 		setTitle(field);
-		setStatusBar(" Table: "+dbTable+" Field: "+field);
+		setStatusBar(" Table: " + dbTable + " Field: " + field);
+	}
+	
+	public void describeField(String table, String field) {
+		String list[] = new String[] { Constants.TSQL_COLUMN,
+				Constants.POSTGRES_COLUMN, Constants.MYSQL_COLUMN };
+		String sqlStr = list[dbType.ordinal()];
+		String res = dbAdmin.getRecord(sqlStr, new String[] { table, field });
+		result.setText(res);
+		setTitle(field);
+		setStatusBar(" Table: " + dbTable + " Field: " + field);
 	}
 
 	public String replaceParam(String str, String[] list) {
@@ -232,7 +246,7 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		}
 		return res;
 	}
-	
+
 	public void executeSQL() {
 		String sqlStr = sql.getText();
 		String res = dbAdmin.getRecord(sqlStr);
@@ -240,54 +254,62 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 	}
 
 	public void listDatabase() {
-		String list[]=new String[]{Constants.TSQL_DATABASE,Constants.POSTGRES_DATABASE,Constants.MYSQL_DATABASE};
+		String list[] = new String[] { Constants.TSQL_DATABASE,
+				Constants.POSTGRES_DATABASE, Constants.MYSQL_DATABASE };
 		String sqlStr = list[dbType.ordinal()];
 		String dbList[] = dbAdmin.getList(sqlStr);
-		new DBListFrame(this,dbList);		
+		new DBListFrame(this, dbList);
 	}
 
 	public void listSchema() {
-		String list[]=new String[]{Constants.TSQL_SCHEMA,Constants.POSTGRES_SCHEMA,Constants.MYSQL_SCHEMA};
+		String list[] = new String[] { Constants.TSQL_SCHEMA,
+				Constants.POSTGRES_SCHEMA, Constants.MYSQL_SCHEMA };
 		String sqlStr = list[dbType.ordinal()];
 		String res = dbAdmin.getRecord(sqlStr, false);
 		result.setText(res);
 	}
-	
+
 	public void listSchemaTree() {
-		String list[]=new String[]{Constants.TSQL_SCHEMA,Constants.POSTGRES_SCHEMA,Constants.MYSQL_SCHEMA};
+		String list[] = new String[] { Constants.TSQL_SCHEMA,
+				Constants.POSTGRES_SCHEMA, Constants.MYSQL_SCHEMA };
 		String sqlStr = list[dbType.ordinal()];
-		String schemaList[]=dbAdmin.getList(sqlStr);		
+		String schemaList[] = dbAdmin.getList(sqlStr);
 		tree.setTree(schemaList);
 	}
 
 	public String[] listColumn(String schema, String table) {
-		String list[]=new String[]{Constants.TSQL_LIST_COLUMN,Constants.POSTGRES_LIST_COLUMN,Constants.MYSQL_LIST_COLUMN};
-		String sqlStr = list[dbType.ordinal()];		
-		return dbAdmin.getList(sqlStr,new String[]{schema, table});		
-	}
-	
-	public String hostname() {
-		String str="";
-		str= database();
-		
-		String[] list=new String[]{Constants.TSQL_HOST,Constants.POSTGRES_HOST,Constants.MYSQL_HOST};
+		String list[] = new String[] { Constants.TSQL_LIST_COLUMN,
+				Constants.POSTGRES_LIST_COLUMN, Constants.MYSQL_LIST_COLUMN };
 		String sqlStr = list[dbType.ordinal()];
-		String res=dbAdmin.getRecord(sqlStr);
+		return dbAdmin.getList(sqlStr, new String[] { schema, table });
+	}
+
+	public String hostname() {
+		String str = "";
+		str = database();
+
+		String[] list = new String[] { Constants.TSQL_HOST,
+				Constants.POSTGRES_HOST, Constants.MYSQL_HOST };
+		String sqlStr = list[dbType.ordinal()];
+		String res = dbAdmin.getRecord(sqlStr);
 		if (res != null && !res.isEmpty()) {
-			str += ":"+res;
+			str += ":" + res;
 		}
 
-		list=new String[]{Constants.TSQL_PORT,Constants.POSTGRES_PORT,Constants.MYSQL_PORT};
+		list = new String[] { Constants.TSQL_PORT, Constants.POSTGRES_PORT,
+				Constants.MYSQL_PORT };
 		sqlStr = list[dbType.ordinal()];
-		res=dbAdmin.getRecord(sqlStr);
+		res = dbAdmin.getRecord(sqlStr);
 		if (res != null && !res.isEmpty()) {
-			str+= ":" + res;
+			str += ":" + res;
 		}
 		return str;
 	}
 
 	public String database() {
-		String list[]=new String[]{Constants.TSQL_CURRENT_DATABASE,Constants.POSTGRES_CURRENT_DATABASE,Constants.MYSQL_CURRENT_DATABASE};
+		String list[] = new String[] { Constants.TSQL_CURRENT_DATABASE,
+				Constants.POSTGRES_CURRENT_DATABASE,
+				Constants.MYSQL_CURRENT_DATABASE };
 		String sqlStr = list[dbType.ordinal()];
 		String res = dbAdmin.getRecord(sqlStr, false);
 		return res;
@@ -306,9 +328,10 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 	}
 
 	public String[] listTable(String schema) {
-		String list[]=new String[]{Constants.TSQL_TABLE,Constants.POSTGRES_TABLE,Constants.MYSQL_TABLE};
+		String list[] = new String[] { Constants.TSQL_TABLE,
+				Constants.POSTGRES_TABLE, Constants.MYSQL_TABLE };
 		String sqlStr = list[dbType.ordinal()];
-		String dbList[] = dbAdmin.getList(sqlStr, new String[]{schema});
+		String dbList[] = dbAdmin.getList(sqlStr, new String[] { schema });
 		setTitle(schema);
 		return dbList;
 	}
@@ -324,11 +347,11 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 			dbAdmin._iniFile = fn;
 			dbAdmin.readIniFile();
 			setTitle(hostname());
-			setDBType();	
-			listSchemaTree(); 
+			setDBType();
+			listSchemaTree();
 		}
 	}
-	
+
 	public static void main(String[] args) {
 		Options opt = new Options();
 		opt.addOption("i", Constants.OPTION_INI, true, "INI file");

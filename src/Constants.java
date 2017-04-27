@@ -17,8 +17,8 @@ public class Constants {
 	public static final String POSTGRES_HOST="SELECT inet_server_addr()";
 	public static final String POSTGRES_PORT="SELECT inet_server_port()";
 	public static final String POSTGRES_CURRENT_DATABASE="SELECT current_database()";
-	public static final String POSTGRES_COLUMN="";
-	public static final String POSTGRES_LIST_COLUMN="select column_name from information_schema.columns where (table_name=? OR TRUE) AND table_name=?";
+	public static final String POSTGRES_COLUMN="select * from information_schema.columns where table_name=? AND column_name=? ";
+	public static final String POSTGRES_LIST_COLUMN="select column_name from information_schema.columns where (table_name=? OR TRUE) AND table_name=? ";
 	
 	public static final String MYSQL_DATABASE="SHOW DATABASES";
 	public static final String MYSQL_SCHEMA="SHOW TABLES";

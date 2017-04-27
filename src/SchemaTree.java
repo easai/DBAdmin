@@ -15,6 +15,10 @@ public class SchemaTree extends JTree implements TreeSelectionListener,
 	DefaultTreeModel model = (DefaultTreeModel) getModel();
 	DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
 
+	enum Level {
+		ROOT, SCHEMA, TABLE, COLUMN
+	};
+
 	SchemaTree(DBAdminFrame admin) {
 		this.admin = admin;
 		addTreeSelectionListener(this);
@@ -24,25 +28,30 @@ public class SchemaTree extends JTree implements TreeSelectionListener,
 	@Override
 	public void valueChanged(TreeSelectionEvent e) {
 		DefaultMutableTreeNode node = (DefaultMutableTreeNode) getLastSelectedPathComponent();
-		
+
 		if (node == null) {
 			return;
 		}
 		String current = (String) node.getUserObject();
-		
-		if(node.getLevel()==1){		
+
+		if (node.getLevel() == Level.SCHEMA.ordinal()) {
 			String list[] = admin.listTable(current);
 			setTree(node, list);
-		}else{			
-			DefaultMutableTreeNode parent=(DefaultMutableTreeNode)node.getParent();
-			String schema=(String)parent.getUserObject();
+		} else if (node.getLevel() == Level.TABLE.ordinal()) {
+			DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node
+					.getParent();
+			String schema = (String) parent.getUserObject();
 			String list[] = admin.listColumn(schema, current);
 			setTree(node, list);
+		} else if (node.getLevel() == Level.COLUMN.ordinal()) {
+			DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node
+					.getParent();
+			String table= (String) parent.getUserObject();
+			admin.describeField(table, current);
 		}
 	}
 
 	public void setTree(String schemaList[]) {
-		
 		root.removeAllChildren();
 		for (int i = 0; i < schemaList.length; i++) {
 			root.add(new DefaultMutableTreeNode(schemaList[i]));
@@ -53,17 +62,17 @@ public class SchemaTree extends JTree implements TreeSelectionListener,
 	}
 
 	public void setTree(DefaultMutableTreeNode node, String schemaList[]) {
-		TreePath path=getSelectionPath();
-		if (node== null || schemaList == null) {
+		TreePath path = getSelectionPath();
+		if (node == null || schemaList == null) {
 			return;
-		}		
-		for (int i = 0; i < schemaList.length; i++) {			
+		}
+		for (int i = 0; i < schemaList.length; i++) {
 			node.add(new DefaultMutableTreeNode(schemaList[i]));
-		}			
+		}
 		model.reload(root);
-		setRootVisible(false);				
-		repaint();				
-		this.expandPath(path);		
+		setRootVisible(false);
+		repaint();
+		this.expandPath(path);
 	}
 
 	@Override
