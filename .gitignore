@@ -3,6 +3,7 @@ log
 bin
 *~
 *.jar
+!lib/*
 *.ini
 
 # Windows image file caches

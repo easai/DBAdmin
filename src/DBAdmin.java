@@ -4,6 +4,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.Statement;
@@ -64,7 +65,7 @@ public class DBAdmin {
 				driver= prop.getProperty(DRIVER);
 			}
 		} catch (Exception e) {
-			log.error("Ini file read error: ", e);
+			log.error("Ini file read error: "+_iniFile, e);
 		}
 	}
 
@@ -165,6 +166,62 @@ public class DBAdmin {
 		return str;
 	}
 
+	public String getRecord(String sql, String[] paramList) {
+		return getRecord(sql, paramList, true, "");
+	}
+	
+	public String getRecord(String sql, String[] paramList, boolean newLine) {
+		return getRecord(sql, paramList, newLine, "");
+	}
+	
+	public String getRecord(String sql, String[] paramList, boolean newLine, String prefix) {
+		ResultSet resultSet;
+		String str="";
+		try {
+			if(database.isEmpty()){
+				throw new Exception("Database configuration error");
+			}
+			log.info("URL: "+jdbc_url+dbName);
+			log.info("User: "+user);
+			log.info("Password: "+password);
+			log.info("Database: "+dbName);
+			Class.forName(driver);
+			Connection con = DriverManager.getConnection(jdbc_url+dbName, user,
+					password);
+			con.setAutoCommit(true);
+			Statement statement = con.createStatement();
+
+			PreparedStatement stmt=con.prepareStatement(sql);
+			for(int i=1;i<=paramList.length;i++){				
+				stmt.setString(i, paramList[i]);				
+			}
+			
+			log.info("SQL: "+sql);
+			resultSet = stmt.executeQuery();
+			ResultSetMetaData rsmd = resultSet.getMetaData();
+			String field = "";
+			while (resultSet.next()) {
+				for (int i = 1; i <= rsmd.getColumnCount(); i++) {
+					field = rsmd.getColumnName(i);
+					if(newLine){
+						str+=field+": "+resultSet.getString(field)+"\r\n";
+					}else{
+						str+=prefix+resultSet.getString(field);
+					}					
+				}
+				str+="\r\n";
+			}
+
+			statement.close();
+			con.close();
+
+		} catch (Exception e) {
+			log.error("DB access error",e);
+		}
+		return str;
+	}
+
+	
 	public String describe(String table) {
 		ResultSet resultSet;
 		String str="";

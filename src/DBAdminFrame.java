@@ -200,19 +200,17 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 			field = result.getSelectedText();
 		}		
 		field=field.trim();
-		String sqlStr = Constants.TSQL_COLUMN;
-		
-		String list[]=dbTable.split("\\.");
+		String list[]=new String[]{Constants.TSQL_COLUMN,Constants.POSTGRES_COLUMN,Constants.MYSQL_COLUMN};
+		String sqlStr = list[dbType.ordinal()];
+				
 		String table=dbTable;
-		
-		if(0<list.length){
-			table=list[1];			
+		int index=dbTable.indexOf('.');		
+		if(0<=index){
+			table=dbTable.substring(index+1);
 		}
-		if (dbAdmin.database.equals("postgres")) {
-			sqlStr = Constants.POSTGRES_COLUMN;
-		}
-		sqlStr=replaceParam(sqlStr,new String[]{table, field});
-		String res = dbAdmin.getRecord(sqlStr);
+		//sqlStr=replaceParam(sqlStr,new String[]{table, field});		
+		//String res = dbAdmin.getRecord(sqlStr);
+		String res = dbAdmin.getRecord(sqlStr,new String[]{table, field});
 		result.setText(res);
 		setTitle(field);
 		setStatusBar(" Table: "+dbTable+" Field: "+field);
