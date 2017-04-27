@@ -192,8 +192,9 @@ public class DBAdmin {
 			Statement statement = con.createStatement();
 
 			PreparedStatement stmt=con.prepareStatement(sql);
-			for(int i=1;i<=paramList.length;i++){				
-				stmt.setString(i, paramList[i]);				
+			for(int i=0;i<paramList.length;i++){				
+				System.out.println(paramList[i]);
+				stmt.setString(i+1, paramList[i]);				
 			}
 			
 			log.info("SQL: "+sql);
