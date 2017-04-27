@@ -28,9 +28,12 @@ public class SchemaTree extends JTree implements TreeSelectionListener,
 			return;
 		}
 		String schema = (String) node.getUserObject();
-		String list[] = admin.listTable(schema);
 		
-		setTree(node, list);
+		if(node.getLevel()==1){		
+			String list[] = admin.listTable(schema);
+			setTree(node, list);
+		}
+				
 	}
 
 	public void setTree(String schemaList[]) {
@@ -40,6 +43,7 @@ public class SchemaTree extends JTree implements TreeSelectionListener,
 		}
 		model.reload(root);
 		setRootVisible(false);
+		repaint();
 	}
 
 	public void setTree(DefaultMutableTreeNode node, String schemaList[]) {

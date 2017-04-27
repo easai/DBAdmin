@@ -70,6 +70,7 @@ public class DBListFrame extends JFrame implements MouseListener {
 		admin.dbAdmin.dbName = database;
 		admin.setTitle(admin.hostname() + ":" + database);
 		popup.setVisible(false);
+		admin.listSchemaTree();
 	}
 
 	@Override

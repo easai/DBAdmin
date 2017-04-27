@@ -70,16 +70,12 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		mb.add(mSQL);
 
 		JMenu mDatabase = new JMenu("Database");
-		JMenuItem miAllDB = new JMenuItem("Database");
-		
+		JMenuItem miAllDB = new JMenuItem("Database");		
 		JMenuItem miSchema = new JMenuItem("Schema");
 		JMenuItem miTable = new JMenuItem("Table");
 		JMenuItem miDescribe = new JMenuItem("Describe Schema.Table");
 		JMenuItem miField= new JMenuItem("Describe Field");
 		mDatabase.add(miAllDB);
-		mDatabase.add(miSchema);
-		mDatabase.add(miTable);
-		mDatabase.add(miDescribe);
 		mb.add(mDatabase);
 
 		miConnect.addActionListener(new ActionAdaptor() {
@@ -114,12 +110,7 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 				listSchema();
 			}
 		});
-		miTable.addActionListener(new ActionAdaptor() {
-			public void actionPerformed(ActionEvent e) {
-				listTable();
-				popup.setVisible(false);
-			}
-		});
+
 		miField.addActionListener(new ActionAdaptor() {
 			public void actionPerformed(ActionEvent e) {
 				describeField();
@@ -159,7 +150,7 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		
 		setDBType();
 		
-		setSize(500, 500);
+		setSize(1000, 700);
 		String title=hostname();
 		String db=database();
 		if(!db.isEmpty()){
@@ -267,9 +258,7 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 	public void listSchemaTree() {
 		String list[]=new String[]{Constants.TSQL_SCHEMA,Constants.POSTGRES_SCHEMA,Constants.MYSQL_SCHEMA};
 		String sqlStr = list[dbType.ordinal()];
-
-		String schemaList[]=dbAdmin.getList(sqlStr);
-		
+		String schemaList[]=dbAdmin.getList(sqlStr);		
 		tree.setTree(schemaList);
 	}
 
@@ -306,6 +295,7 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		dbAdmin.dbName = dbname;
 		setTitle(hostname() + ":" + database());
 		popup.setVisible(false);
+		listSchemaTree();
 	}
 
 	public String[] listTable(String schema) {
