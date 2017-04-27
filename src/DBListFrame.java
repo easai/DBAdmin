@@ -52,9 +52,8 @@ public class DBListFrame extends JFrame implements MouseListener {
 		Container pane = getContentPane();
 		popup.add(miDatabase);
 		
-		if (dbList != null) {
-			JScrollPane scroll=new JScrollPane(dbList);
-			pane.add(scroll, BorderLayout.CENTER);			
+		if (dbList != null) {			
+			pane.add(new JScrollPane(dbList), BorderLayout.CENTER);			
 		}		
 		pane.add(selectDatabase, BorderLayout.SOUTH);
 

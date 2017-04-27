@@ -18,8 +18,11 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
+import javax.swing.JTree;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -45,6 +48,7 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 	JPopupMenu popup = new JPopupMenu();	
 	JLabel statusBar=new JLabel("");
 	String dbTable="";
+	JTree tree=new JTree();
 
 	enum Database{TSQL, POSTGRES, MYSQL};
 	Database dbType=Database.TSQL;
@@ -131,12 +135,14 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		popup.add(miDescribe);
 		popup.add(miField);
 
-		JSplitPane splitPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-		JScrollPane sqlScroll = new JScrollPane(sql);
-		splitPanel.setTopComponent(sqlScroll);
+		JSplitPane splitPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT);		
+		splitPanel.setTopComponent(new JScrollPane(sql));
 
-		JScrollPane scroll = new JScrollPane(result);
-		splitPanel.setBottomComponent(scroll);
+		JSplitPane bottomSplit=new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+		listSchemaTree();
+		bottomSplit.setLeftComponent(new JScrollPane(tree));		
+		bottomSplit.setRightComponent(new JScrollPane(result));
+		splitPanel.setBottomComponent(bottomSplit);
 
 		Container pane=getContentPane();
 		pane.add(splitPanel,BorderLayout.CENTER);
@@ -257,6 +263,22 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		String res = dbAdmin.getRecord(sqlStr, false);
 		result.setText(res);
 	}
+	
+	public void listSchemaTree() {
+		String list[]=new String[]{Constants.TSQL_SCHEMA,Constants.POSTGRES_SCHEMA,Constants.MYSQL_SCHEMA};
+		String sqlStr = list[dbType.ordinal()];
+
+		String schemaList[]=dbAdmin.getList(sqlStr);
+		
+		DefaultTreeModel model = (DefaultTreeModel)tree.getModel();
+		DefaultMutableTreeNode root = (DefaultMutableTreeNode)model.getRoot();		
+		root.removeAllChildren();
+		for(int i=0;i<schemaList.length;i++){
+			root.add(new DefaultMutableTreeNode(schemaList[i]));
+		}
+		model.reload(root);
+		tree.setRootVisible(false);
+	}
 
 	public String hostname() {	
 		String list[]=new String[]{Constants.TSQL_DATABASE,Constants.POSTGRES_DATABASE,Constants.MYSQL_DATABASE};
@@ -320,6 +342,7 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 			dbAdmin.readIniFile();
 			setTitle(hostname());
 			setDBType();	
+			listSchemaTree(); 
 		}
 	}
 	
