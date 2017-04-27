@@ -247,8 +247,8 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 	public void listDatabase() {
 		String list[]=new String[]{Constants.TSQL_DATABASE,Constants.POSTGRES_DATABASE,Constants.MYSQL_DATABASE};
 		String sqlStr = list[dbType.ordinal()];
-		String res = dbAdmin.getRecord(sqlStr, false);
-		new DBListFrame(this,res);		
+		String dbList[] = dbAdmin.getList(sqlStr);
+		new DBListFrame(this,dbList);		
 	}
 
 	public void listSchema() {
