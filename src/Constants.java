@@ -2,6 +2,7 @@
 public class Constants {
 	public static final String OPTION_INI = "inifile";
 	
+	public static final String TSQL_TYPE="TSQL";
 	public static final String TSQL_DATABASE="SELECT name FROM sys.databases";
 	public static final String TSQL_SCHEMA="SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA";
 	public static final String TSQL_TABLE="SELECT table_name FROM information_schema.tables WHERE table_type='BASE TABLE' AND table_schema like ?";
@@ -11,6 +12,7 @@ public class Constants {
 	public static final String TSQL_COLUMN="SELECT * FROM INFORMATION_SCHEMA.COLUMNS Where TABLE_NAME = ? AND COLUMN_NAME=?";
 	public static final String TSQL_LIST_COLUMN="SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS Where TABLE_SCHEMA = ? AND TABLE_NAME=?";
 	
+	public static final String POSTGRES_TYPE="POSTGRES";
 	public static final String POSTGRES_DATABASE="SELECT datname FROM pg_database WHERE datistemplate = false";
 	public static final String POSTGRES_SCHEMA="SELECT schema_name from information_schema.schemata";
 	public static final String POSTGRES_TABLE="SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname like ?";
@@ -20,12 +22,13 @@ public class Constants {
 	public static final String POSTGRES_COLUMN="select * from information_schema.columns where table_name=? AND column_name=? ";
 	public static final String POSTGRES_LIST_COLUMN="select column_name from information_schema.columns where (table_name=? OR TRUE) AND table_name=? ";
 	
+	public static final String MYSQL_TYPE="MYSQL";
 	public static final String MYSQL_DATABASE="SHOW DATABASES";
 	public static final String MYSQL_SCHEMA="SHOW TABLES";
-	public static final String MYSQL_TABLE="DESCRIBE ?";
-	public static final String MYSQL_HOST="SHOW variables like 'hostname'";
-	public static final String MYSQL_PORT="SHOW variables like ‘port’";
+	public static final String MYSQL_TABLE="SHOW TABLES";
+	public static final String MYSQL_HOST="SELECT * FROM information_schema.global_variables WHERE variable_name like 'hostname'";
+	public static final String MYSQL_PORT="SELECT * FROM information_schema.global_variables WHERE variable_name like 'port'";
 	public static final String MYSQL_CURRENT_DATABASE="SELECT database()";
-	public static final String MYSQL_COLUMN="SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=? AND COLUMN_NAME=?";
-	public static final String MYSQL_LIST_COLUMN="SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=? AND TABLE_NAME=?";
+	public static final String MYSQL_COLUMN="SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME=? AND COLUMN_NAME=?";
+	public static final String MYSQL_LIST_COLUMN="SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE (TABLE_NAME=? OR TRUE) AND TABLE_NAME=?";
 }

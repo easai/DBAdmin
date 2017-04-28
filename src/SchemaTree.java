@@ -38,16 +38,20 @@ public class SchemaTree extends JTree implements TreeSelectionListener,
 		}
 		String current = (String) node.getUserObject();
 
-		if (node.getLevel() == Level.SCHEMA.ordinal()) {
+		int level=node.getLevel();
+		if(admin.dbType==DBAdminFrame.Database.MYSQL){
+			level++;
+		}
+		if (level == Level.SCHEMA.ordinal()) {
 			String list[] = admin.listTable(current);
 			setTree(node, list);
-		} else if (node.getLevel() == Level.TABLE.ordinal()) {
+		} else if (level == Level.TABLE.ordinal()) {
 			DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node
 					.getParent();
 			String schema = (String) parent.getUserObject();
 			String list[] = admin.listColumn(schema, current);
 			setTree(node, list);
-		} else if (node.getLevel() == Level.COLUMN.ordinal()) {
+		} else if (level == Level.COLUMN.ordinal()) {
 			DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node
 					.getParent();
 			String table= (String) parent.getUserObject();
