@@ -165,14 +165,15 @@ public class DBAdmin {
 		return str;
 	}
 
-	public String[] getList(String sql) {
+	public RecordSet getList(String sql) {
 		return getList(sql, null);
 	}
 
-	public String[] getList(String sql, String paramList[]) {
+	public RecordSet getList(String sql, String paramList[]) {
+		RecordSet recordSet=new RecordSet();
 		ResultSet resultSet = null;
 		ArrayList<String> array = new ArrayList<>();
-		String list[] = null;
+		
 		try {
 			if (database.isEmpty()) {
 				throw new Exception("Database configuration error");
@@ -199,38 +200,46 @@ public class DBAdmin {
 					while(resultSet.next()){
 						array.add(resultSet.getString("TABLE_NAME"));						
 					}
+					recordSet.value.add(array);
 				} else {
 					resultSet = statement.executeQuery();
 				}
 			} else {
 				resultSet = statement.executeQuery();
 			}
+			
 			if (resultSet != null && array.size()==0) {
-				ResultSetMetaData rsmd = resultSet.getMetaData();
+				ResultSetMetaData rsmd = resultSet.getMetaData();				
 				String field = "";
+				boolean headerSet=false;
 				while (resultSet.next()) {
+					
 					for (int i = 1; i <= rsmd.getColumnCount(); i++) {
 						field = rsmd.getColumnName(i);
-
+						if(!headerSet){
+							recordSet.headerList.add(field);	
+						}						
 						array.add(resultSet.getString(field));
 					}
+					headerSet=true;
+					recordSet.value.add(array);
 				}
 			}
 
 			statement.close();
 			con.close();
 
-			int nDB = array.size();
+/*			int nDB = array.size();
 			list = new String[nDB];
 			for (int i = 0; i < nDB; i++) {
 				list[i] = array.get(i);
 			}
-
+*/
 		} catch (Exception e) {
 			log.error("DB access error", e);
 		}
 
-		return list;
+		return recordSet;
 	}
 
 	public String getRecord(String sql, String[] paramList) {
