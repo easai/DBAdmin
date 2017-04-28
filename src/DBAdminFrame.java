@@ -19,11 +19,8 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
-import javax.swing.JTree;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -240,7 +237,11 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 
 	public void executeSQL() {
 		String sqlStr = sql.getText();
-		String res = dbAdmin.getRecord(sqlStr);
+		String list[] = dbAdmin.getList(sqlStr);
+		String res="";
+		for(int i=0;i<list.length;i++){
+			res+=list[i]+"\r\n";
+		}
 		result.setText(res);
 	}
 

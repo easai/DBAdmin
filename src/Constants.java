@@ -26,6 +26,6 @@ public class Constants {
 	public static final String MYSQL_HOST="SHOW variables like 'hostname'";
 	public static final String MYSQL_PORT="SHOW variables like ‘port’";
 	public static final String MYSQL_CURRENT_DATABASE="SELECT database()";
-	public static final String MYSQL_COLUMN="";
+	public static final String MYSQL_COLUMN="SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=? AND COLUMN_NAME=?";
 	public static final String MYSQL_LIST_COLUMN="SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=? AND TABLE_NAME=?";
 }

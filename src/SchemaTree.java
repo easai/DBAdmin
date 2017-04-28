@@ -11,6 +11,10 @@ import javax.swing.tree.TreePath;
 public class SchemaTree extends JTree implements TreeSelectionListener,
 		MouseListener {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	DBAdminFrame admin = null;
 	DefaultTreeModel model = (DefaultTreeModel) getModel();
 	DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
@@ -65,7 +69,7 @@ public class SchemaTree extends JTree implements TreeSelectionListener,
 
 	public void setTree(DefaultMutableTreeNode node, String schemaList[]) {
 		TreePath path = getSelectionPath();
-		if (node == null || schemaList == null) {
+		if (node == null || schemaList == null || !node.isLeaf()) {
 			return;
 		}
 		for (int i = 0; i < schemaList.length; i++) {
