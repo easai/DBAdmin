@@ -65,12 +65,17 @@ public class DBListFrame extends JFrame implements MouseListener {
 	}
 
 	public void selectDatabase() {
-		String database=dbList.getSelectedValue();		
-		database = database.trim();
-		admin.dbAdmin.dbName = database;
-		admin.setTitle(admin.hostname() + ":" + database);
-		popup.setVisible(false);
-		admin.listSchemaTree();
+		if(dbList==null){
+			return;
+		}
+		String database=dbList.getSelectedValue();	
+		if(database!=null && !database.isEmpty()){
+			database = database.trim();
+			admin.dbAdmin.dbName = database;
+			admin.setTitle(admin.hostname() + ":" + database);
+			popup.setVisible(false);
+			admin.listSchemaTree();			
+		}
 	}
 
 	@Override

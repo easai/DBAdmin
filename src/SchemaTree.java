@@ -53,8 +53,10 @@ public class SchemaTree extends JTree implements TreeSelectionListener,
 
 	public void setTree(String schemaList[]) {
 		root.removeAllChildren();
-		for (int i = 0; i < schemaList.length; i++) {
-			root.add(new DefaultMutableTreeNode(schemaList[i]));
+		if(schemaList!=null){
+			for (int i = 0; i < schemaList.length; i++) {
+				root.add(new DefaultMutableTreeNode(schemaList[i]));
+			}
 		}
 		model.reload(root);
 		setRootVisible(false);

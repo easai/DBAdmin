@@ -3,6 +3,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -81,8 +82,7 @@ public class DBAdmin {
 				prop.setProperty(DRIVER, driver);
 				prop.setProperty(DATABASE, database);
 				prop.setProperty(DBNAME, dbName);
-				DateFormat dateFormat = DateFormat.getDateTimeInstance(
-						DateFormat.FULL, DateFormat.FULL);
+				DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL);
 				prop.store(out, dateFormat.format(new java.util.Date()));
 			}
 		} catch (Exception e) {
@@ -107,8 +107,7 @@ public class DBAdmin {
 			log.info("User: " + user);
 			log.info("Password: " + password);
 			Class.forName(driver);
-			Connection con = DriverManager.getConnection(jdbc_url + dbName,
-					user, password);
+			Connection con = DriverManager.getConnection(jdbc_url + dbName, user, password);
 			con.setAutoCommit(true);
 			Statement statement = con.createStatement();
 
@@ -133,8 +132,7 @@ public class DBAdmin {
 			log.info("Password: " + password);
 			log.info("Database: " + dbName);
 			Class.forName(driver);
-			Connection con = DriverManager.getConnection(jdbc_url + dbName,
-					user, password);
+			Connection con = DriverManager.getConnection(jdbc_url + dbName, user, password);
 			con.setAutoCommit(true);
 			Statement statement = con.createStatement();
 
@@ -146,8 +144,7 @@ public class DBAdmin {
 				for (int i = 1; i <= rsmd.getColumnCount(); i++) {
 					field = rsmd.getColumnName(i);
 					if (newLine) {
-						str += field + ": " + resultSet.getString(field)
-								+ "\r\n";
+						str += field + ": " + resultSet.getString(field) + "\r\n";
 					} else {
 						str += prefix + resultSet.getString(field);
 					}
@@ -180,8 +177,7 @@ public class DBAdmin {
 			log.info("Database: " + dbName);
 			log.info("SQL: " + sql);
 			Class.forName(driver);
-			Connection con = DriverManager.getConnection(jdbc_url + dbName,
-					user, password);
+			Connection con = DriverManager.getConnection(jdbc_url + dbName, user, password);
 			con.setAutoCommit(true);
 
 			PreparedStatement statement = con.prepareStatement(sql);
@@ -190,13 +186,19 @@ public class DBAdmin {
 					statement.setString(i + 1, paramList[i]);
 				}
 			}
-			
-			resultSet = statement.executeQuery();
+
+			if (database.toUpperCase().equals("MYSQL")){
+				DatabaseMetaData meta = con.getMetaData();
+				resultSet = meta.getCatalogs();
+			} else {
+				resultSet = statement.executeQuery();
+			}
 			ResultSetMetaData rsmd = resultSet.getMetaData();
 			String field = "";
 			while (resultSet.next()) {
 				for (int i = 1; i <= rsmd.getColumnCount(); i++) {
 					field = rsmd.getColumnName(i);
+
 					array.add(resultSet.getString(field));
 				}
 			}
@@ -225,8 +227,7 @@ public class DBAdmin {
 		return getRecord(sql, paramList, newLine, "");
 	}
 
-	public String getRecord(String sql, String[] paramList, boolean newLine,
-			String prefix) {
+	public String getRecord(String sql, String[] paramList, boolean newLine, String prefix) {
 		ResultSet resultSet;
 		String str = "";
 		try {
@@ -238,8 +239,7 @@ public class DBAdmin {
 			log.info("Password: " + password);
 			log.info("Database: " + dbName);
 			Class.forName(driver);
-			Connection con = DriverManager.getConnection(jdbc_url + dbName,
-					user, password);
+			Connection con = DriverManager.getConnection(jdbc_url + dbName, user, password);
 			con.setAutoCommit(true);
 			Statement statement = con.createStatement();
 
@@ -256,8 +256,7 @@ public class DBAdmin {
 				for (int i = 1; i <= rsmd.getColumnCount(); i++) {
 					field = rsmd.getColumnName(i);
 					if (newLine) {
-						str += field + ": " + resultSet.getString(field)
-								+ "\r\n";
+						str += field + ": " + resultSet.getString(field) + "\r\n";
 					} else {
 						str += prefix + resultSet.getString(field);
 					}
@@ -282,8 +281,7 @@ public class DBAdmin {
 				throw new Exception("Database configuration error");
 			}
 			Class.forName(driver);
-			Connection con = DriverManager.getConnection(jdbc_url + dbName,
-					user, password);
+			Connection con = DriverManager.getConnection(jdbc_url + dbName, user, password);
 			con.setAutoCommit(true);
 			Statement statement = con.createStatement();
 			String sql = "SELECT * FROM " + table;
