@@ -162,38 +162,40 @@ public class DBAdmin {
 		return getList(sql, null);
 	}
 
-
-	
 	public RecordSet getList(String sql, String paramList[]) {
-		RecordSet recordSet=new RecordSet();
+		RecordSet recordSet = new RecordSet();
 		ResultSet resultSet = null;
 		ArrayList<Object> array = new ArrayList<>();
-		
+		PreparedStatement statement = null;
 		try {
 			if (database.isEmpty()) {
 				throw new Exception("Database configuration error");
 			}
 			log.info("SQL: " + sql);
 			Class.forName(driver);
-			Connection con = DriverManager.getConnection(jdbc_url + dbName,
-					user, password);
+			Connection con=null;
+			if (sql.equals(Constants.MYSQL_TABLE) || sql.equals(Constants.MYSQL_SCHEMA)) {
+				con = DriverManager.getConnection(jdbc_url + dbName+"?useUnicode=true&characterEncoding=utf8", user, password);
+			}else{
+				con = DriverManager.getConnection(jdbc_url + dbName, user, password);
+			}
 			con.setAutoCommit(true);
-
-			PreparedStatement statement = con.prepareStatement(sql);
+			
+			statement = con.prepareStatement(sql);
 			if (paramList != null) {
 				for (int i = 0; i < paramList.length; i++) {
 					statement.setString(i + 1, paramList[i]);
 				}
 			}
 
-			if (database.toUpperCase().equals(Constants.MYSQL_TYPE)) {				
+			if (database.toUpperCase().equals(Constants.MYSQL_TYPE)) {
 				DatabaseMetaData meta = con.getMetaData();
 				if (sql.equals(Constants.MYSQL_DATABASE)) {
 					resultSet = meta.getCatalogs();
-				} else if (sql.equals(Constants.MYSQL_TABLE)||sql.equals(Constants.MYSQL_SCHEMA)) {					
+				} else if (sql.equals(Constants.MYSQL_TABLE) || sql.equals(Constants.MYSQL_SCHEMA)) {
 					resultSet = meta.getTables(null, null, "%", null);
-					while(resultSet.next()){
-						array.add(resultSet.getObject("TABLE_NAME"));						
+					while (resultSet.next()) {
+						array.add(resultSet.getObject("TABLE_NAME"));
 					}
 					recordSet.value.add(array);
 				} else {
@@ -202,17 +204,17 @@ public class DBAdmin {
 			} else {
 				resultSet = statement.executeQuery();
 			}
-			
-			if (resultSet != null && array.isEmpty()){
-				ResultSetMetaData rsmd = resultSet.getMetaData();				
+
+			if (resultSet != null && array.isEmpty()) {
+				ResultSetMetaData rsmd = resultSet.getMetaData();
 				String field = "";
 				for (int i = 1; i <= rsmd.getColumnCount(); i++) {
-					field = rsmd.getColumnName(i);					
-					recordSet.headerList.add(field);	
+					field = rsmd.getColumnName(i);
+					recordSet.headerList.add(field);
 					resultSet.beforeFirst();
-					array=new ArrayList<>();
-					while (resultSet.next()) {							
-						Object value=resultSet.getString(field);
+					array = new ArrayList<>();
+					while (resultSet.next()) {
+						Object value = resultSet.getString(field);
 						array.add(value);
 					}
 					recordSet.value.add(array);
@@ -223,7 +225,15 @@ public class DBAdmin {
 			con.close();
 
 		} catch (Exception e) {
-			log.error("DB access error", e);
+			try {
+				if (statement != null) {
+					recordSet=null;
+					statement.executeUpdate();
+				}
+			} catch (Exception ex) {
+				recordSet=null;
+				log.error("DB update error", ex);
+			}			
 		}
 
 		return recordSet;

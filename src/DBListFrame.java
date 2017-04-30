@@ -22,9 +22,9 @@ public class DBListFrame extends JFrame implements MouseListener {
 	JPopupMenu popup = new JPopupMenu();
 	JTextArea textArea = new JTextArea();
 	JButton selectDatabase = new JButton("Select Database");
-	JList<String> dbList;
+	JList<Object> dbList;
 
-	DBListFrame(DBAdminFrame admin, String[] list) {
+	DBListFrame(DBAdminFrame admin, Object[] list) {
 		this.admin = admin;
 
 		if (list != null) {			
@@ -67,7 +67,7 @@ public class DBListFrame extends JFrame implements MouseListener {
 		if(dbList==null){
 			return;
 		}
-		String database=dbList.getSelectedValue();	
+		String database=(String)dbList.getSelectedValue();	
 		if(database!=null && !database.isEmpty()){
 			database = database.trim();
 			admin.dbAdmin.dbName = database;

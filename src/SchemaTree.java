@@ -43,13 +43,13 @@ public class SchemaTree extends JTree implements TreeSelectionListener,
 			level++;
 		}
 		if (level == Level.SCHEMA.ordinal()) {
-			String list[] = admin.listTable(current);
+			Object list[] = admin.listTable(current);
 			setTree(node, list);
 		} else if (level == Level.TABLE.ordinal()) {
 			DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node
 					.getParent();
 			String schema = (String) parent.getUserObject();
-			String list[] = admin.listColumn(schema, current);
+			Object list[] = admin.listColumn(schema, current);
 			setTree(node, list);
 		} else if (level == Level.COLUMN.ordinal()) {
 			DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node
@@ -59,7 +59,7 @@ public class SchemaTree extends JTree implements TreeSelectionListener,
 		}
 	}
 
-	public void setTree(String schemaList[]) {
+	public void setTree(Object schemaList[]) {
 		root.removeAllChildren();
 		if(schemaList!=null){
 			for (int i = 0; i < schemaList.length; i++) {
@@ -71,7 +71,7 @@ public class SchemaTree extends JTree implements TreeSelectionListener,
 		repaint();
 	}
 
-	public void setTree(DefaultMutableTreeNode node, String schemaList[]) {
+	public void setTree(DefaultMutableTreeNode node, Object schemaList[]) {
 		TreePath path = getSelectionPath();
 		if (node == null || schemaList == null || !node.isLeaf()) {
 			return;
