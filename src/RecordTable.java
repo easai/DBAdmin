@@ -14,10 +14,12 @@ public class RecordTable extends JTable {
 		for(int i=0;i<recordSet.value.size();i++){
 			header.add(""+(i+1));
 		}
+		System.out.println("header.value: "+recordSet.headerList.size());
+		
 		
 		DefaultTableModel tableModel = new DefaultTableModel(header.toArray(), 0);
 
-		for (int index = 0; index < recordSet.value.get(0).size(); index++) {
+		for (int index = 0; index < recordSet.headerList.size(); index++) {
 			ArrayList<String> array = new ArrayList<>();
 			array.add(recordSet.headerList.get(index));
 			for (int i = 0; i < recordSet.value.size(); i++) {

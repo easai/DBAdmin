@@ -2,12 +2,12 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="C:/Users/easai/Documents/GitHub/DBAdmin/lib/commons-cli-1.3.1.jar"/>
-	<classpathentry kind="lib" path="C:/Users/easai/Documents/GitHub/DBAdmin/lib/logback-classic-1.2.1.jar"/>
-	<classpathentry kind="lib" path="C:/Users/easai/Documents/GitHub/DBAdmin/lib/logback-core-1.2.1.jar"/>
-	<classpathentry kind="lib" path="C:/Users/easai/Documents/GitHub/DBAdmin/lib/mysql-connector-java-5.1.42-bin.jar"/>
-	<classpathentry kind="lib" path="C:/Users/easai/Documents/GitHub/DBAdmin/lib/postgresql-42.0.0.jre6.jar"/>
-	<classpathentry kind="lib" path="C:/Users/easai/Documents/GitHub/DBAdmin/lib/slf4j-api-1.7.24.jar"/>
-	<classpathentry kind="lib" path="C:/Users/easai/Documents/GitHub/DBAdmin/lib/sqljdbc42.jar"/>
+	<classpathentry kind="lib" path="D:/Documents/GitHub/DBAdmin/lib/commons-cli-1.3.1.jar"/>
+	<classpathentry kind="lib" path="D:/Documents/GitHub/DBAdmin/lib/logback-classic-1.2.1.jar"/>
+	<classpathentry kind="lib" path="D:/Documents/GitHub/DBAdmin/lib/logback-core-1.2.1.jar"/>
+	<classpathentry kind="lib" path="D:/Documents/GitHub/DBAdmin/lib/mysql-connector-java-5.1.42-bin.jar"/>
+	<classpathentry kind="lib" path="D:/Documents/GitHub/DBAdmin/lib/postgresql-42.0.0.jre6.jar"/>
+	<classpathentry kind="lib" path="D:/Documents/GitHub/DBAdmin/lib/slf4j-api-1.7.24.jar"/>
+	<classpathentry kind="lib" path="D:/Documents/GitHub/DBAdmin/lib/sqljdbc42.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

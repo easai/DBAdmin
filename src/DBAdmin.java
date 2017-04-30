@@ -130,9 +130,6 @@ public class DBAdmin {
 				throw new Exception("Database configuration error");
 			}
 			log.info("URL: " + jdbc_url + dbName);
-			log.info("User: " + user);
-			log.info("Password: " + password);
-			log.info("Database: " + dbName);
 			Class.forName(driver);
 			Connection con = DriverManager.getConnection(jdbc_url + dbName,
 					user, password);
@@ -208,7 +205,7 @@ public class DBAdmin {
 				resultSet = statement.executeQuery();
 			}
 			
-			if (resultSet != null && array.size()==0) {
+			if (resultSet != null && array.isEmpty()){
 				ResultSetMetaData rsmd = resultSet.getMetaData();				
 				String field = "";
 				boolean headerSet=false;
@@ -218,7 +215,7 @@ public class DBAdmin {
 						field = rsmd.getColumnName(i);
 						if(!headerSet){
 							recordSet.headerList.add(field);	
-						}						
+						}												
 						array.add(resultSet.getString(field));
 					}
 					headerSet=true;
