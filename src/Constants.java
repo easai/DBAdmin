@@ -2,6 +2,7 @@
 public class Constants {
 	public static final String OPTION_INI = "inifile";
 	
+	
 	public static final String TSQL_TYPE="TSQL";
 	public static final String TSQL_DATABASE="SELECT name FROM sys.databases";
 	public static final String TSQL_SCHEMA="SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA";
@@ -31,4 +32,5 @@ public class Constants {
 	public static final String MYSQL_CURRENT_DATABASE="SELECT database()";
 	public static final String MYSQL_COLUMN="SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME=? AND COLUMN_NAME=?";
 	public static final String MYSQL_LIST_COLUMN="SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE (TABLE_NAME=? OR TRUE) AND TABLE_NAME=?";
-}
+	
+	}
