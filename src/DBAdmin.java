@@ -181,7 +181,7 @@ public class DBAdmin {
 			}
 			con.setAutoCommit(true);
 			
-			statement = con.prepareStatement(sql);
+			statement = con.prepareStatement(sql,ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			if (paramList != null) {
 				for (int i = 0; i < paramList.length; i++) {
 					statement.setObject(i + 1, paramList[i]);
@@ -226,6 +226,7 @@ public class DBAdmin {
 
 		} catch (Exception e) {
 			try {
+				log.info("SQL execution error",e);
 				if (statement != null) {
 					recordSet=null;
 					statement.executeUpdate();

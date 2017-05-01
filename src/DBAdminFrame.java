@@ -6,8 +6,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -57,7 +55,7 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 	RecordTable table = new RecordTable();
 	JTextArea cellArea=new JTextArea();
 	
-	enum Database {
+	public enum Database {
 		TSQL, POSTGRES, MYSQL
 	};
 

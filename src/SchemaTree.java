@@ -52,7 +52,14 @@ public class SchemaTree extends JTree implements TreeSelectionListener,
 			Object list[] = admin.listColumn(schema, current);
 			setTree(node, list);
 			
-			String sql="SELECT * FROM "+current+" LIMIT 10";
+			String sql="";
+			if(admin.dbType==DBAdminFrame.Database.MYSQL){
+				sql="SELECT * FROM "+current+" LIMIT 10";
+			}else if(admin.dbType==DBAdminFrame.Database.POSTGRES){
+				sql="SELECT * FROM "+schema+"."+current+" LIMIT 10";
+			}else if(admin.dbType==DBAdminFrame.Database.TSQL){
+				sql="SELECT top(10) * FROM "+schema+"."+current;
+			}
 			admin.executeSQL(sql);
 			
 		} else if (level == Level.COLUMN.ordinal()) {
