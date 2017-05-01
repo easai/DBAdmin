@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -21,8 +22,11 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -51,7 +55,8 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 	SchemaTree tree = new SchemaTree(this);
 	JSplitPane bottomSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 	RecordTable table = new RecordTable();
-
+	JTextArea cellArea=new JTextArea();
+	
 	enum Database {
 		TSQL, POSTGRES, MYSQL
 	};
@@ -147,8 +152,49 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 
 		listSchemaTree();
 		bottomSplit.setLeftComponent(new JScrollPane(tree));
-		bottomSplit.setRightComponent(new JScrollPane(table));
+		JSplitPane bottomRightSplit=new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+		
+		JPanel controlPanel=new JPanel();
+		controlPanel.setLayout(new BoxLayout(controlPanel,BoxLayout.X_AXIS));
+		controlPanel.add(cellArea);
+		
+		JButton update=new JButton("Update");
+		
+		update.addActionListener(new ActionAdaptor(){
 
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				updateField();
+				
+			}
+			
+		});
+		
+		//controlPanel.add(update);
+		bottomRightSplit.setTopComponent(controlPanel);
+		bottomRightSplit.setBottomComponent(new JScrollPane(table));
+		bottomSplit.setRightComponent(bottomRightSplit);
+
+		table.setCellSelectionEnabled(true);
+	    ListSelectionModel cellSelectionModel = table.getSelectionModel();
+	    cellSelectionModel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+	    cellSelectionModel.addListSelectionListener(new ListSelectionListener() {
+	      public void valueChanged(ListSelectionEvent e) {
+	        String selectedData = null;
+
+	        int[] selectedRow = table.getSelectedRows();
+	        int[] selectedColumns = table.getSelectedColumns();
+
+	        for (int i = 0; i < selectedRow.length; i++) {
+	          for (int j = 0; j < selectedColumns.length; j++) {
+	            selectedData = (String) table.getValueAt(selectedRow[i], selectedColumns[j]);
+	          }
+	        }
+	        cellArea.setText(selectedData);
+	      }
+	    });
+			   		
 		splitPanel.setBottomComponent(bottomSplit);
 
 		Container pane = getContentPane();
@@ -174,6 +220,13 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		setVisible(true);
 	}
 
+	public void updateField(){
+        int selectedRow = table.getSelectedRow();
+        int selectedColumns = table.getSelectedColumn();
+        String sql="UPDATE "+" VALUES(";
+		
+	}
+	
 	public void setDBType() {
 		if (!dbAdmin.database.isEmpty()) {
 			if (dbAdmin.database.toUpperCase().equals(Constants.TSQL_TYPE)) {
@@ -194,6 +247,10 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 
 	public void executeSQL() {
 		String sqlStr = sql.getText();
+		executeSQL(sqlStr);
+	}
+	
+	public void executeSQL(String sqlStr) {			
 		RecordSet recordSet = dbAdmin.getList(sqlStr);
 		if (recordSet != null) {
 			table.init(recordSet);

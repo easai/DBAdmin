@@ -51,6 +51,10 @@ public class SchemaTree extends JTree implements TreeSelectionListener,
 			String schema = (String) parent.getUserObject();
 			Object list[] = admin.listColumn(schema, current);
 			setTree(node, list);
+			
+			String sql="SELECT * FROM "+current+" LIMIT 10";
+			admin.executeSQL(sql);
+			
 		} else if (level == Level.COLUMN.ordinal()) {
 			DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node
 					.getParent();

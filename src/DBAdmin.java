@@ -162,7 +162,7 @@ public class DBAdmin {
 		return getList(sql, null);
 	}
 
-	public RecordSet getList(String sql, String paramList[]) {
+	public RecordSet getList(String sql, Object paramList[]) {
 		RecordSet recordSet = new RecordSet();
 		ResultSet resultSet = null;
 		ArrayList<Object> array = new ArrayList<>();
@@ -184,7 +184,7 @@ public class DBAdmin {
 			statement = con.prepareStatement(sql);
 			if (paramList != null) {
 				for (int i = 0; i < paramList.length; i++) {
-					statement.setString(i + 1, paramList[i]);
+					statement.setObject(i + 1, paramList[i]);
 				}
 			}
 
@@ -239,15 +239,15 @@ public class DBAdmin {
 		return recordSet;
 	}
 
-	public String getRecord(String sql, String[] paramList) {
+	public String getRecord(String sql, Object[] paramList) {
 		return getRecord(sql, paramList, true, "");
 	}
 
-	public String getRecord(String sql, String[] paramList, boolean newLine) {
+	public String getRecord(String sql, Object[] paramList, boolean newLine) {
 		return getRecord(sql, paramList, newLine, "");
 	}
 
-	public String getRecord(String sql, String[] paramList, boolean newLine, String prefix) {
+	public String getRecord(String sql, Object[] paramList, boolean newLine, String prefix) {
 		ResultSet resultSet;
 		String str = "";
 		try {
@@ -255,17 +255,14 @@ public class DBAdmin {
 				throw new Exception("Database configuration error");
 			}
 			log.info("URL: " + jdbc_url + dbName);
-			log.info("User: " + user);
-			log.info("Password: " + password);
-			log.info("Database: " + dbName);
 			Class.forName(driver);
 			Connection con = DriverManager.getConnection(jdbc_url + dbName, user, password);
 			con.setAutoCommit(true);
 			Statement statement = con.createStatement();
 
 			PreparedStatement stmt = con.prepareStatement(sql);
-			for (int i = 0; i < paramList.length; i++) {
-				stmt.setString(i + 1, paramList[i]);
+			for (int i = 0; i < paramList.length; i++) {				
+				stmt.setObject(i + 1, paramList[i]);
 			}
 
 			log.info("SQL: " + sql);
