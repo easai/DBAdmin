@@ -183,7 +183,7 @@ public class DBAdmin {
 			
 			statement = con.prepareStatement(sql,ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			if (paramList != null) {
-				for (int i = 0; i < paramList.length; i++) {
+				for (int i = 0; i < paramList.length; i++) {					
 					statement.setObject(i + 1, paramList[i]);					
 				}
 			}
@@ -214,7 +214,7 @@ public class DBAdmin {
 					resultSet.beforeFirst();
 					array = new ArrayList<>();
 					while (resultSet.next()) {
-						Object value = resultSet.getString(field);
+						Object value = resultSet.getObject(field);
 						array.add(value);
 					}
 					recordSet.value.add(array);
@@ -226,7 +226,7 @@ public class DBAdmin {
 
 		} catch (Exception e) {
 			try {
-				log.info("SQL execution error",e);
+				//log.info("SQL execution error",e);
 				if (statement != null) {
 					recordSet=null;
 					statement.executeUpdate();
