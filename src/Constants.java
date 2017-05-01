@@ -12,6 +12,7 @@ public class Constants {
 	public static final String TSQL_CURRENT_DATABASE="SELECT DB_NAME()";
 	public static final String TSQL_COLUMN="SELECT * FROM INFORMATION_SCHEMA.COLUMNS Where TABLE_NAME = ? AND COLUMN_NAME=?";
 	public static final String TSQL_LIST_COLUMN="SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS Where TABLE_SCHEMA = ? AND TABLE_NAME=?";
+	public static final String TSQL_LIMIT10="SELECT TOP(10) * FROM %s";
 	
 	public static final String POSTGRES_TYPE="POSTGRES";
 	public static final String POSTGRES_DATABASE="SELECT datname FROM pg_database WHERE datistemplate = false";
@@ -22,6 +23,7 @@ public class Constants {
 	public static final String POSTGRES_CURRENT_DATABASE="SELECT current_database()";
 	public static final String POSTGRES_COLUMN="select * from information_schema.columns where table_name=? AND column_name=? ";
 	public static final String POSTGRES_LIST_COLUMN="select column_name from information_schema.columns where (table_name=? OR TRUE) AND table_name=? ";
+	public static final String POSTGRES_LIMIT10="SELECT * FROM %s LIMIT 10";
 	
 	public static final String MYSQL_TYPE="MYSQL";
 	public static final String MYSQL_DATABASE="SHOW DATABASES";
@@ -32,5 +34,6 @@ public class Constants {
 	public static final String MYSQL_CURRENT_DATABASE="SELECT database()";
 	public static final String MYSQL_COLUMN="SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME=? AND COLUMN_NAME=?";
 	public static final String MYSQL_LIST_COLUMN="SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE (TABLE_NAME=? OR TRUE) AND TABLE_NAME=?";
+	public static final String MYSQL_LIMIT10="SELECT * FROM %s LIMIT 10";
 	
 	}

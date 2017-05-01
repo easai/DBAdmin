@@ -52,16 +52,17 @@ public class SchemaTree extends JTree implements TreeSelectionListener,
 			Object list[] = admin.listColumn(schema, current);
 			setTree(node, list);
 			
-			String sql="";
+			String[] sqlList = new String[] { Constants.TSQL_LIMIT10, Constants.POSTGRES_LIMIT10, Constants.MYSQL_LIMIT10 };
+			String sqlStr = sqlList[admin.dbType.ordinal()];
+			String table="";
 			if(admin.dbType==DBAdminFrame.Database.MYSQL){
-				sql="SELECT * FROM "+current+" LIMIT 10";
-			}else if(admin.dbType==DBAdminFrame.Database.POSTGRES){
-				sql="SELECT * FROM "+schema+"."+current+" LIMIT 10";
-			}else if(admin.dbType==DBAdminFrame.Database.TSQL){
-				sql="SELECT top(10) * FROM "+schema+"."+current;
+				table=current;				
+			}else{
+				table=schema+"."+current;
 			}
-			admin.executeSQL(sql);
-			
+			sqlStr=String.format(sqlStr,table);
+			admin.executeSQL(sqlStr);
+			admin.tableSelected(table);
 		} else if (level == Level.COLUMN.ordinal()) {
 			DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node
 					.getParent();

@@ -53,7 +53,10 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 	SchemaTree tree = new SchemaTree(this);
 	JSplitPane bottomSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 	RecordTable table = new RecordTable();
-	JTextArea cellArea=new JTextArea();
+	JTextArea cellArea = new JTextArea();
+	JPanel controlPanel = new JPanel();
+	JButton update = new JButton("Update");
+	CellTable cellTable=new CellTable();
 	
 	public enum Database {
 		TSQL, POSTGRES, MYSQL
@@ -64,6 +67,7 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 	private boolean painted;
 
 	public void paint(Graphics g) {
+		
 		super.paint(g);
 		if (!painted) {
 			painted = true;
@@ -150,49 +154,52 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 
 		listSchemaTree();
 		bottomSplit.setLeftComponent(new JScrollPane(tree));
-		JSplitPane bottomRightSplit=new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+		JSplitPane bottomRightSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+
 		
-		JPanel controlPanel=new JPanel();
-		controlPanel.setLayout(new BoxLayout(controlPanel,BoxLayout.X_AXIS));
-		controlPanel.add(cellArea);
+		controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.X_AXIS));
+		controlPanel.add(cellTable);
+
 		
-		JButton update=new JButton("Update");
-		
-		update.addActionListener(new ActionAdaptor(){
+
+		update.addActionListener(new ActionAdaptor() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				updateField();
-				
+
 			}
-			
+
 		});
-		
+
 		//controlPanel.add(update);
 		bottomRightSplit.setTopComponent(controlPanel);
 		bottomRightSplit.setBottomComponent(new JScrollPane(table));
 		bottomSplit.setRightComponent(bottomRightSplit);
 
 		table.setCellSelectionEnabled(true);
-	    ListSelectionModel cellSelectionModel = table.getSelectionModel();
-	    cellSelectionModel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		ListSelectionModel cellSelectionModel = table.getSelectionModel();
+		cellSelectionModel
+				.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-	    cellSelectionModel.addListSelectionListener(new ListSelectionListener() {
-	      public void valueChanged(ListSelectionEvent e) {
-	        String selectedData = null;
+		cellSelectionModel
+				.addListSelectionListener(new ListSelectionListener() {
+					public void valueChanged(ListSelectionEvent e) {
+						Object selectedData = null;
 
-	        int[] selectedRow = table.getSelectedRows();
-	        int[] selectedColumns = table.getSelectedColumns();
+						int[] selectedRow = table.getSelectedRows();
+						int[] selectedColumns = table.getSelectedColumns();
 
-	        for (int i = 0; i < selectedRow.length; i++) {
-	          for (int j = 0; j < selectedColumns.length; j++) {
-	            selectedData = (String) table.getValueAt(selectedRow[i], selectedColumns[j]);
-	          }
-	        }
-	        cellArea.setText(selectedData);
-	      }
-	    });
-			   		
+						for (int i = 0; i < selectedRow.length; i++) {
+							for (int j = 0; j < selectedColumns.length; j++) {
+								selectedData = (String) table.getValueAt(
+										selectedRow[i], selectedColumns[j]);
+							}
+						}
+						cellTable.setObject(selectedData);
+					}
+				});
+
 		splitPanel.setBottomComponent(bottomSplit);
 
 		Container pane = getContentPane();
@@ -218,18 +225,48 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		setVisible(true);
 	}
 
-	public void updateField(){
-        int selectedRow = table.getSelectedRow();
-        int selectedColumns = table.getSelectedColumn();
-        String sql="UPDATE "+" VALUES(";
-		
+	public void tableSelected(String tableStr){
+		update.setText("Update "+tableStr);
+		controlPanel.add(update);
 	}
 	
+	public void updateField() {
+		int selectedRow = table.getSelectedRow();
+		int selectedColumn = table.getSelectedColumn();
+		String tableStr=update.getText();
+		int index=tableStr.indexOf(" ");
+		tableStr=tableStr.substring(index);
+		String sql = "UPDATE " + tableStr+" ";
+
+		int nRow=table.getRowCount();
+		Object value[]=new Object[nRow];
+		String cond="";
+		int i=1;
+		for (int j = 0; j < nRow; j++) {
+			String field=(String)table.getValueAt(j,0);
+			if(j==selectedRow){
+				value[0] = cellTable.getObject();
+				sql+="SET "+field+" = ?";
+			}else{
+				value[i] = table.getValueAt(j, selectedColumn);					
+				if(!cond.isEmpty()){
+					cond+=" AND ";
+				}				
+				cond+=field+"=?";
+				i++;
+			}	
+		}
+		if(!cond.isEmpty())
+			sql=sql+" WHERE "+cond;
+		dbAdmin.getList(sql,value);
+	}
+
 	public void setDBType() {
 		if (!dbAdmin.database.isEmpty()) {
 			if (dbAdmin.database.toUpperCase().equals(Constants.TSQL_TYPE)) {
 				dbType = Database.TSQL;
-			} else if (dbAdmin.database.toUpperCase().equals(Constants.POSTGRES_TYPE)) {
+			} else if (dbAdmin.database.toUpperCase().equals(
+					Constants.POSTGRES_TYPE)) {
 				dbType = Database.POSTGRES;
 			} else {
 				dbType = Database.MYSQL;
@@ -239,7 +276,8 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 	}
 
 	public void setStatusBar(String str) {
-		String label = "Host: " + hostname() + " Database: " + database() + " " + str;
+		String label = "Host: " + hostname() + " Database: " + database() + " "
+				+ str;
 		statusBar.setText(label);
 	}
 
@@ -247,9 +285,16 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		String sqlStr = sql.getText();
 		executeSQL(sqlStr);
 	}
-	
-	public void executeSQL(String sqlStr) {			
+
+	public void executeSQL(String sqlStr) {
 		RecordSet recordSet = dbAdmin.getList(sqlStr);
+		if (recordSet != null) {
+			table.init(recordSet);
+		}
+	}
+
+	public void executeSQL(String sqlStr, Object paramList[]) {
+		RecordSet recordSet = dbAdmin.getList(sqlStr, paramList);
 		if (recordSet != null) {
 			table.init(recordSet);
 		}
@@ -258,14 +303,16 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 	public String hostname() {
 		String str = "";
 
-		String[] list = new String[] { Constants.TSQL_HOST, Constants.POSTGRES_HOST, Constants.MYSQL_HOST };
+		String[] list = new String[] { Constants.TSQL_HOST,
+				Constants.POSTGRES_HOST, Constants.MYSQL_HOST };
 		String sqlStr = list[dbType.ordinal()];
 		String res = dbAdmin.getRecord(sqlStr, false);
 		if (res != null && !res.isEmpty()) {
 			str += res;
 		}
 
-		list = new String[] { Constants.TSQL_PORT, Constants.POSTGRES_PORT, Constants.MYSQL_PORT };
+		list = new String[] { Constants.TSQL_PORT, Constants.POSTGRES_PORT,
+				Constants.MYSQL_PORT };
 		sqlStr = list[dbType.ordinal()];
 		res = dbAdmin.getRecord(sqlStr, false);
 		if (res != null && !res.isEmpty()) {
@@ -275,7 +322,8 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 	}
 
 	public String database() {
-		String list[] = new String[] { Constants.TSQL_CURRENT_DATABASE, Constants.POSTGRES_CURRENT_DATABASE,
+		String list[] = new String[] { Constants.TSQL_CURRENT_DATABASE,
+				Constants.POSTGRES_CURRENT_DATABASE,
 				Constants.MYSQL_CURRENT_DATABASE };
 		String sqlStr = list[dbType.ordinal()];
 		String res = dbAdmin.getRecord(sqlStr, false);
@@ -283,7 +331,8 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 	}
 
 	public void listDatabase() {
-		String list[] = new String[] { Constants.TSQL_DATABASE, Constants.POSTGRES_DATABASE, Constants.MYSQL_DATABASE };
+		String list[] = new String[] { Constants.TSQL_DATABASE,
+				Constants.POSTGRES_DATABASE, Constants.MYSQL_DATABASE };
 		String sqlStr = list[dbType.ordinal()];
 		RecordSet recordSet = dbAdmin.getList(sqlStr);
 		new DBListFrame(this, recordSet.getFirst());
@@ -303,21 +352,24 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 	}
 
 	public void listSchema() {
-		String list[] = new String[] { Constants.TSQL_SCHEMA, Constants.POSTGRES_SCHEMA, Constants.MYSQL_SCHEMA };
+		String list[] = new String[] { Constants.TSQL_SCHEMA,
+				Constants.POSTGRES_SCHEMA, Constants.MYSQL_SCHEMA };
 		String sqlStr = list[dbType.ordinal()];
 		String res = dbAdmin.getRecord(sqlStr, false);
 		result.setText(res);
 	}
 
 	public void listSchemaTree() {
-		String list[] = new String[] { Constants.TSQL_SCHEMA, Constants.POSTGRES_SCHEMA, Constants.MYSQL_SCHEMA };
+		String list[] = new String[] { Constants.TSQL_SCHEMA,
+				Constants.POSTGRES_SCHEMA, Constants.MYSQL_SCHEMA };
 		String sqlStr = list[dbType.ordinal()];
 		RecordSet recordSet = dbAdmin.getList(sqlStr);
 		tree.setTree(recordSet.getFirst());
 	}
 
 	public Object[] listTable(String schema) {
-		String list[] = new String[] { Constants.TSQL_TABLE, Constants.POSTGRES_TABLE, Constants.MYSQL_TABLE };
+		String list[] = new String[] { Constants.TSQL_TABLE,
+				Constants.POSTGRES_TABLE, Constants.MYSQL_TABLE };
 		String sqlStr = list[dbType.ordinal()];
 		RecordSet recordSet = dbAdmin.getList(sqlStr, new String[] { schema });
 		setTitle(schema);
@@ -339,12 +391,13 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 	}
 
 	public Object[] listColumn(String schema, String table) {
-		String list[] = new String[] { Constants.TSQL_LIST_COLUMN, Constants.POSTGRES_LIST_COLUMN,
-				Constants.MYSQL_LIST_COLUMN };
+		String list[] = new String[] { Constants.TSQL_LIST_COLUMN,
+				Constants.POSTGRES_LIST_COLUMN, Constants.MYSQL_LIST_COLUMN };
 		String sqlStr = list[dbType.ordinal()];
 		setTitle(schema + "." + table);
 		setStatusBar(" Schema: " + schema + " Table: " + table);
-		RecordSet recordSet = dbAdmin.getList(sqlStr, new String[] { schema, table });
+		RecordSet recordSet = dbAdmin.getList(sqlStr, new String[] { schema,
+				table });
 		return recordSet.getFirst();
 	}
 
@@ -354,7 +407,8 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 			field = result.getSelectedText();
 		}
 		field = field.trim();
-		String list[] = new String[] { Constants.TSQL_COLUMN, Constants.POSTGRES_COLUMN, Constants.MYSQL_COLUMN };
+		String list[] = new String[] { Constants.TSQL_COLUMN,
+				Constants.POSTGRES_COLUMN, Constants.MYSQL_COLUMN };
 		String sqlStr = list[dbType.ordinal()];
 
 		String table = dbTable;
@@ -369,11 +423,13 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 	}
 
 	public void describeField(String t, String field) {
-		String list[] = new String[] { Constants.TSQL_COLUMN, Constants.POSTGRES_COLUMN, Constants.MYSQL_COLUMN };
+		String list[] = new String[] { Constants.TSQL_COLUMN,
+				Constants.POSTGRES_COLUMN, Constants.MYSQL_COLUMN };
 		String sqlStr = list[dbType.ordinal()];
 		// String res = dbAdmin.getRecord(sqlStr, new String[] { table, field
 		// });
-		RecordSet recordSet = dbAdmin.getList(sqlStr, new String[] { t, field });
+		RecordSet recordSet = dbAdmin
+				.getList(sqlStr, new String[] { t, field });
 		table.init(recordSet);
 		// result.setText(res);
 		setTitle(field);
@@ -408,7 +464,8 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 			CommandLine cmd = parser.parse(opt, args);
 
 			if (cmd.hasOption(Constants.OPTION_INI)) {
-				frame.dbAdmin._iniFile = cmd.getOptionValue(Constants.OPTION_INI);
+				frame.dbAdmin._iniFile = cmd
+						.getOptionValue(Constants.OPTION_INI);
 				log.info("Setting INI file: " + frame.dbAdmin._iniFile);
 			}
 

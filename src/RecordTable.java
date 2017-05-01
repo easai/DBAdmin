@@ -14,7 +14,7 @@ public class RecordTable extends JTable implements ListSelectionListener{
 	private static final long serialVersionUID = 1L;
 
 	public void init(RecordSet recordSet) {
-						
+
 		ArrayList<String> header=new ArrayList<String>();
 		header.add("Field");
 		for(int i=0;i<recordSet.value.get(0).size();i++){

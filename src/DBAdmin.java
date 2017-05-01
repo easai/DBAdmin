@@ -184,7 +184,7 @@ public class DBAdmin {
 			statement = con.prepareStatement(sql,ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			if (paramList != null) {
 				for (int i = 0; i < paramList.length; i++) {
-					statement.setObject(i + 1, paramList[i]);
+					statement.setObject(i + 1, paramList[i]);					
 				}
 			}
 
@@ -203,7 +203,7 @@ public class DBAdmin {
 				}
 			} else {
 				resultSet = statement.executeQuery();
-			}
+			}			
 
 			if (resultSet != null && array.isEmpty()) {
 				ResultSetMetaData rsmd = resultSet.getMetaData();
