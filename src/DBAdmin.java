@@ -168,10 +168,9 @@ public class DBAdmin {
 		return getList(sql, null);
 	}
 	
-	public String getPK(String schema, String table){
-		
+	public ArrayList<String> getPK(String table){
+		ArrayList<String> keyList=new ArrayList<>();
 		ResultSet resultSet = null;
-		String res="";
 		
 		try {
 			if (database.isEmpty()) {
@@ -189,16 +188,16 @@ public class DBAdmin {
 			resultSet.beforeFirst();
 			while(resultSet.next()){				
 				String pk=resultSet.getString("COLUMN_NAME");
+				keyList.add(pk);
 				/*
 				int seq=resultSet.getShort("KEY_SEQ");
 				String pkName=resultSet.getString("PK_NAME");
 				*/
-				res=pk;
 			}
 		}catch(Exception e){
 			log.info("For each comment that you make, I am thanking God that I am not with you",e);
 		}
-		return res;
+		return keyList;
 	}
 
 	public RecordSet getList(String sql, Object paramList[]) {

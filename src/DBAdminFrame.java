@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
+import java.util.ArrayList;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -188,9 +189,9 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 						int selectedRow = table.getSelectedRow();
 						int selectedColumn = table.getSelectedColumn();
 
-						if(0<=selectedRow && 0<=selectedColumn){
-						selectedData = table.getValueAt(selectedRow,
-								selectedColumn);
+						if (0 <= selectedRow && 0 <= selectedColumn) {
+							selectedData = table.getValueAt(selectedRow,
+									selectedColumn);
 						}
 						cellTable.setObject(selectedData);
 					}
@@ -239,17 +240,17 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		int index = tableStr.indexOf(" ");
 		tableStr = tableStr.substring(index);
 		index = tableStr.indexOf(".");
-		String schema0=tableStr.substring(0,index);
-		String table0=tableStr.substring(index+1);
-				
-		String pkName=dbAdmin.getPK(schema0, table0);		
-		
+		String schema0 = tableStr.substring(0, index);
+		String table0 = tableStr.substring(index + 1);
+
+		ArrayList<String> pkName = dbAdmin.getPK(table0);
+
 		String sql = "UPDATE " + tableStr + " ";
 		int nRow = table.getRowCount();
 		Object value[] = new Object[nRow];
 		String cond = "";
 		int i = 1;
-		
+
 		for (int j = 0; j < nRow; j++) {
 			String field = (String) table.getValueAt(j, 0);
 			if (j == selectedRow) {
@@ -258,22 +259,29 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 					editor.stopCellEditing();
 				}
 				value[0] = cellTable.getObject();
-				
+
 				sql += "SET " + field + " = ?";
 			} else {
-				String col=(String)table.getValueAt(j,0);
-				if(col.equals(pkName)){
-					value[i] = table.getValueAt(j, selectedColumn);
-					if (!cond.isEmpty()) {
-						cond += " AND ";
+				String col = (String) table.getValueAt(j, 0);
+				int nKey = pkName.size();
+				if (nKey == 0) {
+					return;
+				} else {
+					int n = 0;
+					while (!pkName.get(n).equals(col) && ++n < nKey);
+					if (n < nKey) {
+						value[i] = table.getValueAt(j, selectedColumn);
+						if (!cond.isEmpty()) {
+							cond += " AND ";
+						}
+						cond += field + "=?";
+						i++;
 					}
-					cond += field + "=?";
-					i++;
 				}
 			}
 		}
 		if (!cond.isEmpty())
-			sql = sql + " WHERE " + cond;		
+			sql = sql + " WHERE " + cond;
 		dbAdmin.getList(sql, value);
 
 		String[] sqlList = new String[] { Constants.TSQL_LIMIT10,
@@ -394,15 +402,22 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		String list[] = new String[] { Constants.TSQL_TABLE,
 				Constants.POSTGRES_TABLE, Constants.MYSQL_TABLE };
 		String sqlStr = list[dbType.ordinal()];
-		System.out.println("schema: "+schema);
+
 		RecordSet recordSet = dbAdmin.getList(sqlStr, new String[] { schema });
 		setTitle(schema);
-		setStatusBar(" Schema: " + schema);
-		if(recordSet!=null){
-			return recordSet.getFirst();			
-		}else{
-			return null;
+
+		ArrayList<Object> tableList = recordSet.value.get(0);
+		for (int i = 0; i < tableList.size(); i++) {
+			String tbl = (String) tableList.get(i);
+			dbAdmin.getPK(tbl);
 		}
+
+		setStatusBar(" Schema: " + schema);
+		Object[] objList = null;
+		if (recordSet != null) {
+			objList = recordSet.getFirst();
+		}
+		return objList;
 	}
 
 	public void describeTable() {
