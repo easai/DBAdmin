@@ -9,6 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.Statement;
+import java.sql.Types;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Properties;
@@ -183,8 +184,8 @@ public class DBAdmin {
 			
 			statement = con.prepareStatement(sql,ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			if (paramList != null) {
-				for (int i = 0; i < paramList.length; i++) {					
-					statement.setObject(i + 1, paramList[i]);					
+				for (int i = 0; i < paramList.length; i++) {	
+					statement.setObject(i + 1, paramList[i]);
 				}
 			}
 

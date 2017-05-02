@@ -1,8 +1,6 @@
 import java.util.ArrayList;
 
 import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
-import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
@@ -12,9 +10,15 @@ public class RecordTable extends JTable implements ListSelectionListener{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	
+	DBAdminFrame admin=null;
+	
+	RecordTable(DBAdminFrame admin){
+		this.admin=admin;
+	}
 
 	public void init(RecordSet recordSet) {
-
+		admin.tableDeselected();
 		ArrayList<String> header=new ArrayList<String>();
 		header.add("Field");
 		for(int i=0;i<recordSet.value.get(0).size();i++){
@@ -29,9 +33,7 @@ public class RecordTable extends JTable implements ListSelectionListener{
 			array.addAll(recordSet.value.get(index));
 			tableModel.addRow(array.toArray());
 		}
-		setModel(tableModel);				
-	}
-
-	
-	
+		setModel(tableModel);			
+		
+	}		
 }

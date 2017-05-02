@@ -52,7 +52,7 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 	String dbTable = "";
 	SchemaTree tree = new SchemaTree(this);
 	JSplitPane bottomSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-	RecordTable table = new RecordTable();
+	RecordTable table = new RecordTable(this);
 	JTextArea cellArea = new JTextArea();
 	JPanel controlPanel = new JPanel();
 	JButton update = new JButton("Update");
@@ -230,6 +230,12 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		controlPanel.add(update);
 	}
 	
+	public void tableDeselected(){
+		controlPanel.remove(update);		
+		revalidate();
+		repaint();
+	}
+	
 	public void updateField() {
 		int selectedRow = table.getSelectedRow();
 		int selectedColumn = table.getSelectedColumn();
@@ -259,6 +265,12 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		if(!cond.isEmpty())
 			sql=sql+" WHERE "+cond;
 		dbAdmin.getList(sql,value);
+		
+		String[] sqlList = new String[] { Constants.TSQL_LIMIT10, Constants.POSTGRES_LIMIT10, Constants.MYSQL_LIMIT10 };
+		String sqlStr = sqlList[dbType.ordinal()];		
+		sqlStr=String.format(sqlStr,tableStr);
+		executeSQL(sqlStr);
+		tableSelected(tableStr);
 	}
 
 	public void setDBType() {
