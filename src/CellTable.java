@@ -9,6 +9,24 @@ public class CellTable extends JTable {
 	DefaultTableModel tableModel = new DefaultTableModel(new String[] { "" }, 0);
 
 	CellTable() {
+
+		tableModel = new DefaultTableModel(new String[] { "" }, 0) {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Class<?> getColumnClass(int c) {
+				Object obj = getValueAt(0, c);
+				if (obj != null) {
+					return obj.getClass();
+				}else{
+					return Object.class;
+				}
+			}
+		};
+
 		tableModel.addRow(new Object[] { "" });
 		setModel(tableModel);
 		setTableHeader(null);

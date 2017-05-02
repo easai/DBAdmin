@@ -34,6 +34,6 @@ public class RecordTable extends JTable implements ListSelectionListener{
 			tableModel.addRow(array.toArray());
 		}
 		setModel(tableModel);			
-		
+		setDefaultEditor(Object.class, null);		
 	}		
 }

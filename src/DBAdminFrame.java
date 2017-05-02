@@ -25,6 +25,7 @@ import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.TableCellEditor;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -56,8 +57,8 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 	JTextArea cellArea = new JTextArea();
 	JPanel controlPanel = new JPanel();
 	JButton update = new JButton("Update");
-	CellTable cellTable=new CellTable();
-	
+	CellTable cellTable = new CellTable();
+
 	public enum Database {
 		TSQL, POSTGRES, MYSQL
 	};
@@ -67,7 +68,7 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 	private boolean painted;
 
 	public void paint(Graphics g) {
-		
+
 		super.paint(g);
 		if (!painted) {
 			painted = true;
@@ -156,11 +157,8 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		bottomSplit.setLeftComponent(new JScrollPane(tree));
 		JSplitPane bottomRightSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 
-		
 		controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.X_AXIS));
 		controlPanel.add(cellTable);
-
-		
 
 		update.addActionListener(new ActionAdaptor() {
 
@@ -172,7 +170,7 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 
 		});
 
-		//controlPanel.add(update);
+		// controlPanel.add(update);
 		bottomRightSplit.setTopComponent(controlPanel);
 		bottomRightSplit.setBottomComponent(new JScrollPane(table));
 		bottomSplit.setRightComponent(bottomRightSplit);
@@ -187,14 +185,12 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 					public void valueChanged(ListSelectionEvent e) {
 						Object selectedData = null;
 
-						int[] selectedRow = table.getSelectedRows();
-						int[] selectedColumns = table.getSelectedColumns();
+						int selectedRow = table.getSelectedRow();
+						int selectedColumn = table.getSelectedColumn();
 
-						for (int i = 0; i < selectedRow.length; i++) {
-							for (int j = 0; j < selectedColumns.length; j++) {
-								selectedData = table.getValueAt(
-										selectedRow[i], selectedColumns[j]);
-							}
+						if(0<=selectedRow && 0<=selectedColumn){
+						selectedData = table.getValueAt(selectedRow,
+								selectedColumn);
 						}
 						cellTable.setObject(selectedData);
 					}
@@ -225,50 +221,65 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		setVisible(true);
 	}
 
-	public void tableSelected(String tableStr){
-		update.setText("Update "+tableStr);
+	public void tableSelected(String tableStr) {
+		update.setText("Update " + tableStr);
 		controlPanel.add(update);
 	}
-	
-	public void tableDeselected(){
-		controlPanel.remove(update);		
+
+	public void tableDeselected() {
+		controlPanel.remove(update);
 		revalidate();
 		repaint();
 	}
-	
+
 	public void updateField() {
 		int selectedRow = table.getSelectedRow();
 		int selectedColumn = table.getSelectedColumn();
-		String tableStr=update.getText();
-		int index=tableStr.indexOf(" ");
-		tableStr=tableStr.substring(index);
-		String sql = "UPDATE " + tableStr+" ";
-
-		int nRow=table.getRowCount();
-		Object value[]=new Object[nRow];
-		String cond="";
-		int i=1;
-		for (int j = 0; j < nRow; j++) {
-			String field=(String)table.getValueAt(j,0);
-			if(j==selectedRow){
-				value[0] = cellTable.getObject();
-				sql+="SET "+field+" = ?";
-			}else{
-				value[i] = table.getValueAt(j, selectedColumn);					
-				if(!cond.isEmpty()){
-					cond+=" AND ";
-				}				
-				cond+=field+"=?";
-				i++;
-			}	
-		}
-		if(!cond.isEmpty())
-			sql=sql+" WHERE "+cond;
-		dbAdmin.getList(sql,value);
+		String tableStr = update.getText();
+		int index = tableStr.indexOf(" ");
+		tableStr = tableStr.substring(index);
+		index = tableStr.indexOf(".");
+		String schema0=tableStr.substring(0,index);
+		String table0=tableStr.substring(index+1);
+				
+		String pkName=dbAdmin.getPK(schema0, table0);		
 		
-		String[] sqlList = new String[] { Constants.TSQL_LIMIT10, Constants.POSTGRES_LIMIT10, Constants.MYSQL_LIMIT10 };
-		String sqlStr = sqlList[dbType.ordinal()];		
-		sqlStr=String.format(sqlStr,tableStr);
+		String sql = "UPDATE " + tableStr + " ";
+		int nRow = table.getRowCount();
+		Object value[] = new Object[nRow];
+		String cond = "";
+		int i = 1;
+		
+		for (int j = 0; j < nRow; j++) {
+			String field = (String) table.getValueAt(j, 0);
+			if (j == selectedRow) {
+				TableCellEditor editor = cellTable.getCellEditor();
+				if (editor != null) {
+					editor.stopCellEditing();
+				}
+				value[0] = cellTable.getObject();
+				
+				sql += "SET " + field + " = ?";
+			} else {
+				String col=(String)table.getValueAt(j,0);
+				if(col.equals(pkName)){
+					value[i] = table.getValueAt(j, selectedColumn);
+					if (!cond.isEmpty()) {
+						cond += " AND ";
+					}
+					cond += field + "=?";
+					i++;
+				}
+			}
+		}
+		if (!cond.isEmpty())
+			sql = sql + " WHERE " + cond;		
+		dbAdmin.getList(sql, value);
+
+		String[] sqlList = new String[] { Constants.TSQL_LIMIT10,
+				Constants.POSTGRES_LIMIT10, Constants.MYSQL_LIMIT10 };
+		String sqlStr = sqlList[dbType.ordinal()];
+		sqlStr = String.format(sqlStr, tableStr);
 		executeSQL(sqlStr);
 		tableSelected(tableStr);
 	}
@@ -383,10 +394,15 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		String list[] = new String[] { Constants.TSQL_TABLE,
 				Constants.POSTGRES_TABLE, Constants.MYSQL_TABLE };
 		String sqlStr = list[dbType.ordinal()];
+		System.out.println("schema: "+schema);
 		RecordSet recordSet = dbAdmin.getList(sqlStr, new String[] { schema });
 		setTitle(schema);
 		setStatusBar(" Schema: " + schema);
-		return recordSet.getFirst();
+		if(recordSet!=null){
+			return recordSet.getFirst();			
+		}else{
+			return null;
+		}
 	}
 
 	public void describeTable() {
@@ -410,7 +426,11 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		setStatusBar(" Schema: " + schema + " Table: " + table);
 		RecordSet recordSet = dbAdmin.getList(sqlStr, new String[] { schema,
 				table });
-		return recordSet.getFirst();
+		Object objList[] = null;
+		if (recordSet != null) {
+			objList = recordSet.getFirst();
+		}
+		return objList;
 	}
 
 	public void describeField() {

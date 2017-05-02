@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
+import java.sql.ParameterMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -83,7 +84,8 @@ public class DBAdmin {
 				prop.setProperty(DRIVER, driver);
 				prop.setProperty(DATABASE, database);
 				prop.setProperty(DBNAME, dbName);
-				DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL);
+				DateFormat dateFormat = DateFormat.getDateTimeInstance(
+						DateFormat.FULL, DateFormat.FULL);
 				prop.store(out, dateFormat.format(new java.util.Date()));
 			}
 		} catch (Exception e) {
@@ -108,7 +110,8 @@ public class DBAdmin {
 			log.info("User: " + user);
 			log.info("Password: " + password);
 			Class.forName(driver);
-			Connection con = DriverManager.getConnection(jdbc_url + dbName, user, password);
+			Connection con = DriverManager.getConnection(jdbc_url + dbName,
+					user, password);
 			con.setAutoCommit(true);
 			Statement statement = con.createStatement();
 
@@ -130,7 +133,8 @@ public class DBAdmin {
 			}
 			log.info("URL: " + jdbc_url + dbName);
 			Class.forName(driver);
-			Connection con = DriverManager.getConnection(jdbc_url + dbName, user, password);
+			Connection con = DriverManager.getConnection(jdbc_url + dbName,
+					user, password);
 			con.setAutoCommit(true);
 			Statement statement = con.createStatement();
 
@@ -142,7 +146,8 @@ public class DBAdmin {
 				for (int i = 1; i <= rsmd.getColumnCount(); i++) {
 					field = rsmd.getColumnName(i);
 					if (newLine) {
-						str += field + ": " + resultSet.getString(field) + "\r\n";
+						str += field + ": " + resultSet.getString(field)
+								+ "\r\n";
 					} else {
 						str += prefix + resultSet.getString(field);
 					}
@@ -162,6 +167,39 @@ public class DBAdmin {
 	public RecordSet getList(String sql) {
 		return getList(sql, null);
 	}
+	
+	public String getPK(String schema, String table){
+		System.out.println("getting PK :"+schema+", "+table);
+		ResultSet resultSet = null;
+		String res="";
+		
+		try {
+			if (database.isEmpty()) {
+				throw new Exception("Database configuration error");
+			}
+
+			Class.forName(driver);
+			Connection con = null;
+			con = DriverManager.getConnection(jdbc_url + dbName, user,
+					password);			
+			con.setAutoCommit(true);
+			
+			DatabaseMetaData meta=con.getMetaData();
+			resultSet=meta.getPrimaryKeys(null, null, table);
+			resultSet.beforeFirst();
+			while(resultSet.next()){				
+				String pk=resultSet.getString("COLUMN_NAME");
+				/*
+				int seq=resultSet.getShort("KEY_SEQ");
+				String pkName=resultSet.getString("PK_NAME");
+				*/
+				res=pk;
+			}
+		}catch(Exception e){
+			log.info("For each comment that you make, I am thanking God that I am not with you",e);
+		}
+		return res;
+	}
 
 	public RecordSet getList(String sql, Object paramList[]) {
 		RecordSet recordSet = new RecordSet();
@@ -174,18 +212,31 @@ public class DBAdmin {
 			}
 			log.info("SQL: " + sql);
 			Class.forName(driver);
-			Connection con=null;
-			if (sql.equals(Constants.MYSQL_TABLE) || sql.equals(Constants.MYSQL_SCHEMA)) {
-				con = DriverManager.getConnection(jdbc_url + dbName+"?useUnicode=true&characterEncoding=utf8", user, password);
-			}else{
-				con = DriverManager.getConnection(jdbc_url + dbName, user, password);
+			Connection con = null;
+			if (sql.equals(Constants.MYSQL_TABLE)
+					|| sql.equals(Constants.MYSQL_SCHEMA)) {
+				con = DriverManager.getConnection(jdbc_url + dbName
+						+ "?useUnicode=true&characterEncoding=utf8", user,
+						password);
+			} else {
+				con = DriverManager.getConnection(jdbc_url + dbName, user,
+						password);
 			}
 			con.setAutoCommit(true);
-			
-			statement = con.prepareStatement(sql,ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+
+			statement = con.prepareStatement(sql,
+					ResultSet.TYPE_SCROLL_INSENSITIVE,
+					ResultSet.CONCUR_READ_ONLY);
+			ParameterMetaData metaData = statement.getParameterMetaData();
 			if (paramList != null) {
-				for (int i = 0; i < paramList.length; i++) {	
-					statement.setObject(i + 1, paramList[i]);
+				for (int i = 0; i < paramList.length; i++) {
+					if (paramList[i] == null) {
+						int sqlType = metaData.getParameterType(i + 1);						
+						statement.setNull(i + 1, sqlType);						
+					} else {						
+						statement.setObject(i + 1, paramList[i]);
+					}
+					System.out.println(i + ": " + paramList[i]);
 				}
 			}
 
@@ -193,7 +244,8 @@ public class DBAdmin {
 				DatabaseMetaData meta = con.getMetaData();
 				if (sql.equals(Constants.MYSQL_DATABASE)) {
 					resultSet = meta.getCatalogs();
-				} else if (sql.equals(Constants.MYSQL_TABLE) || sql.equals(Constants.MYSQL_SCHEMA)) {
+				} else if (sql.equals(Constants.MYSQL_TABLE)
+						|| sql.equals(Constants.MYSQL_SCHEMA)) {
 					resultSet = meta.getTables(null, null, "%", null);
 					while (resultSet.next()) {
 						array.add(resultSet.getObject("TABLE_NAME"));
@@ -204,7 +256,8 @@ public class DBAdmin {
 				}
 			} else {
 				resultSet = statement.executeQuery();
-			}			
+				
+			}
 
 			if (resultSet != null && array.isEmpty()) {
 				ResultSetMetaData rsmd = resultSet.getMetaData();
@@ -227,15 +280,16 @@ public class DBAdmin {
 
 		} catch (Exception e) {
 			try {
-				//log.info("SQL execution error",e);
+				// log.info("SQL execution error",e);
 				if (statement != null) {
-					recordSet=null;
+					recordSet = null;
 					statement.executeUpdate();
+					
 				}
 			} catch (Exception ex) {
-				recordSet=null;
+				recordSet = null;
 				log.error("DB update error", ex);
-			}			
+			}
 		}
 
 		return recordSet;
@@ -249,7 +303,8 @@ public class DBAdmin {
 		return getRecord(sql, paramList, newLine, "");
 	}
 
-	public String getRecord(String sql, Object[] paramList, boolean newLine, String prefix) {
+	public String getRecord(String sql, Object[] paramList, boolean newLine,
+			String prefix) {
 		ResultSet resultSet;
 		String str = "";
 		try {
@@ -258,12 +313,13 @@ public class DBAdmin {
 			}
 			log.info("URL: " + jdbc_url + dbName);
 			Class.forName(driver);
-			Connection con = DriverManager.getConnection(jdbc_url + dbName, user, password);
+			Connection con = DriverManager.getConnection(jdbc_url + dbName,
+					user, password);
 			con.setAutoCommit(true);
 			Statement statement = con.createStatement();
 
 			PreparedStatement stmt = con.prepareStatement(sql);
-			for (int i = 0; i < paramList.length; i++) {				
+			for (int i = 0; i < paramList.length; i++) {
 				stmt.setObject(i + 1, paramList[i]);
 			}
 
@@ -275,7 +331,8 @@ public class DBAdmin {
 				for (int i = 1; i <= rsmd.getColumnCount(); i++) {
 					field = rsmd.getColumnName(i);
 					if (newLine) {
-						str += field + ": " + resultSet.getString(field) + "\r\n";
+						str += field + ": " + resultSet.getString(field)
+								+ "\r\n";
 					} else {
 						str += prefix + resultSet.getString(field);
 					}
@@ -300,7 +357,8 @@ public class DBAdmin {
 				throw new Exception("Database configuration error");
 			}
 			Class.forName(driver);
-			Connection con = DriverManager.getConnection(jdbc_url + dbName, user, password);
+			Connection con = DriverManager.getConnection(jdbc_url + dbName,
+					user, password);
 			con.setAutoCommit(true);
 			Statement statement = con.createStatement();
 			String sql = "SELECT * FROM " + table;
