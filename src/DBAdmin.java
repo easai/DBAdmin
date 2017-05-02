@@ -189,13 +189,9 @@ public class DBAdmin {
 			while(resultSet.next()){				
 				String pk=resultSet.getString("COLUMN_NAME");
 				keyList.add(pk);
-				/*
-				int seq=resultSet.getShort("KEY_SEQ");
-				String pkName=resultSet.getString("PK_NAME");
-				*/
 			}
 		}catch(Exception e){
-			log.info("For each comment that you make, I am thanking God that I am not with you",e);
+			log.info("Error getting primary keys",e);
 		}
 		return keyList;
 	}

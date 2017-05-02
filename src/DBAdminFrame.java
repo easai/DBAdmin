@@ -240,7 +240,7 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		int index = tableStr.indexOf(" ");
 		tableStr = tableStr.substring(index);
 		index = tableStr.indexOf(".");
-		String schema0 = tableStr.substring(0, index);
+		
 		String table0 = tableStr.substring(index + 1);
 
 		ArrayList<String> pkName = dbAdmin.getPK(table0);
