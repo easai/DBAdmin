@@ -406,11 +406,13 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		RecordSet recordSet = dbAdmin.getList(sqlStr, new String[] { schema });
 		setTitle(schema);
 
+		/*
 		ArrayList<Object> tableList = recordSet.value.get(0);
 		for (int i = 0; i < tableList.size(); i++) {
 			String tbl = (String) tableList.get(i);
 			dbAdmin.getPK(tbl);
 		}
+		*/
 
 		setStatusBar(" Schema: " + schema);
 		Object[] objList = null;
