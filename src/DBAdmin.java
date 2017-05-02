@@ -169,7 +169,7 @@ public class DBAdmin {
 	}
 	
 	public String getPK(String schema, String table){
-		System.out.println("getting PK :"+schema+", "+table);
+		
 		ResultSet resultSet = null;
 		String res="";
 		
@@ -235,8 +235,7 @@ public class DBAdmin {
 						statement.setNull(i + 1, sqlType);						
 					} else {						
 						statement.setObject(i + 1, paramList[i]);
-					}
-					System.out.println(i + ": " + paramList[i]);
+					}					
 				}
 			}
 
@@ -255,8 +254,7 @@ public class DBAdmin {
 					resultSet = statement.executeQuery();
 				}
 			} else {
-				resultSet = statement.executeQuery();
-				
+				resultSet = statement.executeQuery();				
 			}
 
 			if (resultSet != null && array.isEmpty()) {
