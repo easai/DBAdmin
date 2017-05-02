@@ -1,5 +1,6 @@
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
 
 import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
@@ -52,6 +53,7 @@ public class SchemaTree extends JTree implements TreeSelectionListener,
 			Object list[] = admin.listColumn(schema, current);
 			setTree(node, list);
 			
+			// show table
 			String[] sqlList = new String[] { Constants.TSQL_LIMIT10, Constants.POSTGRES_LIMIT10, Constants.MYSQL_LIMIT10 };
 			String sqlStr = sqlList[admin.dbType.ordinal()];
 			String table="";
@@ -62,6 +64,10 @@ public class SchemaTree extends JTree implements TreeSelectionListener,
 			}
 			sqlStr=String.format(sqlStr,table);
 			admin.executeSQL(sqlStr);
+			ArrayList<Integer> keyList=admin.setKeyList(current);
+			admin.table.cellRenderer.keyList=keyList;
+			
+			// show button
 			admin.tableSelected(table);
 		} else if (level == Level.COLUMN.ordinal()) {
 			DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node

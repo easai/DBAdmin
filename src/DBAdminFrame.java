@@ -240,7 +240,7 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		int index = tableStr.indexOf(" ");
 		tableStr = tableStr.substring(index);
 		index = tableStr.indexOf(".");
-		
+
 		String table0 = tableStr.substring(index + 1);
 
 		ArrayList<String> pkName = dbAdmin.getPK(table0);
@@ -268,7 +268,8 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 					return;
 				} else {
 					int n = 0;
-					while (!pkName.get(n).equals(col) && ++n < nKey);
+					while (!pkName.get(n).equals(col) && ++n < nKey)
+						;
 					if (n < nKey) {
 						value[i] = table.getValueAt(j, selectedColumn);
 						if (!cond.isEmpty()) {
@@ -406,14 +407,6 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		RecordSet recordSet = dbAdmin.getList(sqlStr, new String[] { schema });
 		setTitle(schema);
 
-		/*
-		ArrayList<Object> tableList = recordSet.value.get(0);
-		for (int i = 0; i < tableList.size(); i++) {
-			String tbl = (String) tableList.get(i);
-			dbAdmin.getPK(tbl);
-		}
-		*/
-
 		setStatusBar(" Schema: " + schema);
 		Object[] objList = null;
 		if (recordSet != null) {
@@ -548,5 +541,27 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 
 	@Override
 	public void mouseExited(MouseEvent e) {
+	}
+
+	public ArrayList<Integer> setKeyList(String tbl) {
+		ArrayList<Integer> rowList = new ArrayList<>();
+		ArrayList<String> keyList = dbAdmin.getPK(tbl);
+		int n = 0;
+		int nKey = keyList.size();
+		
+		if (0 < nKey) {
+			Object obj = null;
+			for (int i = 0; i < table.getRowCount(); i++) {
+				n = 0;
+				while ((obj = table.getValueAt(i, 0)) != null
+						&& !((String) obj).equals(keyList.get(n)) && ++n < nKey)		
+					;
+				if (n < nKey) {
+					rowList.add(i);
+				}
+			}
+		}
+		return rowList;
+
 	}
 }
