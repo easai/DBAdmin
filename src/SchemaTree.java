@@ -45,7 +45,7 @@ public class SchemaTree extends JTree implements TreeSelectionListener,
 		}
 		if (level == Level.SCHEMA.ordinal()) {
 			Object list[] = admin.listTable(current);
-			setTree(node, list);
+			setTree(node, list);			
 		} else if (level == Level.TABLE.ordinal()) {
 			DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node
 					.getParent();
@@ -54,18 +54,15 @@ public class SchemaTree extends JTree implements TreeSelectionListener,
 			setTree(node, list);
 			
 			// show table
-			String[] sqlList = new String[] { Constants.TSQL_LIMIT10, Constants.POSTGRES_LIMIT10, Constants.MYSQL_LIMIT10 };
-			String sqlStr = sqlList[admin.dbType.ordinal()];
+
 			String table="";
 			if(admin.dbType==DBAdminFrame.Database.MYSQL){
 				table=current;				
 			}else{
 				table=schema+"."+current;
 			}
-			sqlStr=String.format(sqlStr,table);
-			admin.executeSQL(sqlStr);
-			ArrayList<Integer> keyList=admin.setKeyList(current);
-			admin.table.cellRenderer.keyList=keyList;
+			setTable(table);
+			admin.selectDBCombo(table);
 			
 			// show button
 			admin.tableSelected(table);
@@ -75,6 +72,25 @@ public class SchemaTree extends JTree implements TreeSelectionListener,
 			String table= (String) parent.getUserObject();
 			admin.describeField(table, current);
 		}
+	}
+	
+	public void setTable(String table){
+		String[] sqlList = new String[] { Constants.TSQL_LIMIT10, Constants.POSTGRES_LIMIT10, Constants.MYSQL_LIMIT10 };
+		String sqlStr = sqlList[admin.dbType.ordinal()];
+		sqlStr=String.format(sqlStr,table);
+		admin.executeSQL(sqlStr);
+		String current="";
+		if(admin.dbType==DBAdminFrame.Database.MYSQL){
+			current=table;
+		}else{
+			int index=table.indexOf(".");
+			if(0<=index){
+				current=current.substring(index);
+			}			
+		}		
+		ArrayList<Integer> keyList=admin.setKeyList(current);
+		admin.table.cellRenderer.keyList=keyList;
+		
 	}
 
 	public void setTree(Object schemaList[]) {

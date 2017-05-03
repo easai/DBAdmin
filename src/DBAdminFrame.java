@@ -3,6 +3,7 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
+import java.awt.event.ItemEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -59,7 +61,9 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 	JPanel controlPanel = new JPanel();
 	JButton update = new JButton("Update");
 	CellTable cellTable = new CellTable();
-
+	JComboBox<String> dbCombo=new JComboBox<>();
+	JComboBox<String> pageCombo=new JComboBox<>();
+	
 	public enum Database {
 		TSQL, POSTGRES, MYSQL
 	};
@@ -132,7 +136,7 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 
 		miSchema.addActionListener(new ActionAdaptor() {
 			public void actionPerformed(ActionEvent e) {
-				listSchema();
+				listSchemaTree();
 			}
 		});
 
@@ -162,7 +166,6 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		controlPanel.add(cellTable);
 
 		update.addActionListener(new ActionAdaptor() {
-
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				updateField();
@@ -171,7 +174,19 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 
 		});
 
-		// controlPanel.add(update);
+		controlPanel.add(update);
+		controlPanel.add(dbCombo);
+		
+		dbCombo.addItemListener(new ItemAdaptor(){
+			public void itemStateChanged(ItemEvent event) {
+			       if (event.getStateChange() == ItemEvent.SELECTED) {
+			          Object item = event.getItem();
+			          tree.setTable((String)item);
+			       }			      
+			}
+		});
+		
+//		controlPanel.add(pageCombo);
 		bottomRightSplit.setTopComponent(controlPanel);
 		bottomRightSplit.setBottomComponent(new JScrollPane(table));
 		bottomSplit.setRightComponent(bottomRightSplit);
@@ -217,15 +232,17 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		}
 		setTitle(title);
 		setVisible(true);
-	}
-
+	}	
+	
 	public void tableSelected(String tableStr) {
-		update.setText("Update " + tableStr);
+		
 		controlPanel.add(update);
+		controlPanel.add(dbCombo);
 	}
 
 	public void tableDeselected() {
 		controlPanel.remove(update);
+		controlPanel.remove(dbCombo);
 		revalidate();
 		repaint();
 	}
@@ -233,9 +250,8 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 	public void updateField() {
 		int selectedRow = table.getSelectedRow();
 		int selectedColumn = table.getSelectedColumn();
-		String tableStr = update.getText();
-		int index = tableStr.indexOf(" ");
-		tableStr = tableStr.substring(index);
+		String tableStr = (String)dbCombo.getSelectedItem();
+		int index = tableStr.indexOf(" ");		
 		index = tableStr.indexOf(".");
 
 		String table0 = tableStr.substring(index + 1);
@@ -377,18 +393,18 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		setStatusBar("");
 	}
 
-	public void listSchema() {
-		String list[] = new String[] { Constants.TSQL_SCHEMA, Constants.POSTGRES_SCHEMA, Constants.MYSQL_SCHEMA };
-		String sqlStr = list[dbType.ordinal()];
-		String res = dbAdmin.getRecord(sqlStr, false);
-		result.setText(res);
-	}
-
 	public void listSchemaTree() {
 		String list[] = new String[] { Constants.TSQL_SCHEMA, Constants.POSTGRES_SCHEMA, Constants.MYSQL_SCHEMA };
 		String sqlStr = list[dbType.ordinal()];
 		RecordSet recordSet = dbAdmin.getList(sqlStr);
-		tree.setTree(recordSet.getFirst());
+		Object[] objList = null;
+		if (recordSet != null) {
+			objList = recordSet.getFirst();
+		}
+		tree.setTree(objList);
+		if (dbType == Database.MYSQL){			
+			setDBCombo(objList);
+		}						
 	}
 
 	public Object[] listTable(String schema) {
@@ -402,8 +418,33 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		Object[] objList = null;
 		if (recordSet != null) {
 			objList = recordSet.getFirst();
+			if (dbType != Database.MYSQL){
+				setDBCombo(objList,schema);
+			}
 		}
+
 		return objList;
+	}
+	
+	public void setDBCombo(Object objList[]){
+		setDBCombo(objList,"");
+	}
+	
+	public void setDBCombo(Object objList[],String prefix){
+		dbCombo.removeAll();
+		dbCombo.addItem("-");
+		for(int i=0;i<objList.length;i++){
+			dbCombo.addItem(prefix+(String)objList[i]);
+		}					
+	}
+
+	public void selectDBCombo(String tableStr){
+		int nCombo=dbCombo.getItemCount();
+		int i=0;
+		while(!dbCombo.getItemAt(i).equals(tableStr) && ++i<nCombo);
+		if(i<nCombo){
+			dbCombo.setSelectedIndex(i);
+		}					
 	}
 
 	public void describeTable() {

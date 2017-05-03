@@ -25,7 +25,7 @@ public class RecordTable extends JTable implements ListSelectionListener{
 		if(recordSet==null || recordSet.value==null || recordSet.value.size()==0){
 			return;
 		}
-		admin.tableDeselected();
+		
 		ArrayList<String> header=new ArrayList<String>();
 		header.add("Field");
 		for(int i=0;i<recordSet.value.get(0).size();i++){
