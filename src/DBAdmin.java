@@ -208,8 +208,7 @@ public class DBAdmin {
 			log.info("SQL: " + sql);
 			Class.forName(driver);
 			Connection con = null;
-			if (sql.equals(Constants.MYSQL_TABLE)
-					|| sql.equals(Constants.MYSQL_SCHEMA)) {
+			if (database.toUpperCase().equals(Constants.MYSQL_TYPE)) {
 				con = DriverManager.getConnection(jdbc_url + dbName
 						+ "?useUnicode=true&characterEncoding=utf8", user,
 						password);

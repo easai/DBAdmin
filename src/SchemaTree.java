@@ -93,7 +93,8 @@ public class SchemaTree extends JTree implements TreeSelectionListener,
 		TreePath path = getSelectionPath();
 		if (node == null || schemaList == null || !node.isLeaf()) {
 			return;
-		}
+		}		
+
 		for (int i = 0; i < schemaList.length; i++) {
 			node.add(new DefaultMutableTreeNode(schemaList[i]));
 		}
