@@ -434,7 +434,7 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		dbCombo.removeAll();
 		dbCombo.addItem("-");
 		for(int i=0;i<objList.length;i++){
-			dbCombo.addItem(prefix+(String)objList[i]);
+			dbCombo.addItem(prefix+"."+(String)objList[i]);
 		}					
 	}
 

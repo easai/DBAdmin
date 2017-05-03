@@ -84,8 +84,8 @@ public class SchemaTree extends JTree implements TreeSelectionListener,
 			current=table;
 		}else{
 			int index=table.indexOf(".");
-			if(0<=index){
-				current=current.substring(index);
+			if(0<=index){				
+				current=table.substring(index);
 			}			
 		}		
 		ArrayList<Integer> keyList=admin.setKeyList(current);
