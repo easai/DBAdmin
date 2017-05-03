@@ -54,7 +54,6 @@ public class SchemaTree extends JTree implements TreeSelectionListener,
 			setTree(node, list);
 			
 			// show table
-
 			String table="";
 			if(admin.dbType==DBAdminFrame.Database.MYSQL){
 				table=current;				
@@ -75,9 +74,20 @@ public class SchemaTree extends JTree implements TreeSelectionListener,
 	}
 	
 	public void setTable(String table){
+		setTable(table,0);
+	}
+	public void setTable(String table,int nPage){
+		if(table.equals("-")){
+			return;
+		}
+			
 		String[] sqlList = new String[] { Constants.TSQL_LIMIT10, Constants.POSTGRES_LIMIT10, Constants.MYSQL_LIMIT10 };
 		String sqlStr = sqlList[admin.dbType.ordinal()];
-		sqlStr=String.format(sqlStr,table);
+//		if(admin.dbType==DBAdminFrame.Database.TSQL){
+//			sqlStr=String.format(sqlStr,table,nPage,nPage+10);
+//		}else{
+			sqlStr=String.format(sqlStr,table,nPage+1);
+//		}
 		admin.executeSQL(sqlStr);
 		String current="";
 		if(admin.dbType==DBAdminFrame.Database.MYSQL){
@@ -85,12 +95,11 @@ public class SchemaTree extends JTree implements TreeSelectionListener,
 		}else{
 			int index=table.indexOf(".");
 			if(0<=index){				
-				current=table.substring(index);
+				current=table.substring(index+1);
 			}			
 		}		
 		ArrayList<Integer> keyList=admin.setKeyList(current);
-		admin.table.cellRenderer.keyList=keyList;
-		
+		admin.table.cellRenderer.keyList=keyList;				
 	}
 
 	public void setTree(Object schemaList[]) {

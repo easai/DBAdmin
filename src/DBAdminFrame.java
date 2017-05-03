@@ -1,6 +1,7 @@
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
@@ -23,6 +24,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
@@ -63,6 +65,12 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 	CellTable cellTable = new CellTable();
 	JComboBox<String> dbCombo=new JComboBox<>();
 	JComboBox<String> pageCombo=new JComboBox<>();
+	JButton forward=new JButton(">");
+	JButton backward=new JButton("<");
+	JTextField page=new JTextField();
+	JSplitPane bottomRight=new JSplitPane();
+	private boolean bottomRightPainted;
+	JButton go=new JButton("Go");
 	
 	public enum Database {
 		TSQL, POSTGRES, MYSQL
@@ -169,9 +177,7 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				updateField();
-
 			}
-
 		});
 
 		controlPanel.add(update);
@@ -188,7 +194,65 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		
 //		controlPanel.add(pageCombo);
 		bottomRightSplit.setTopComponent(controlPanel);
-		bottomRightSplit.setBottomComponent(new JScrollPane(table));
+		
+		JPanel pageControl=new JPanel();
+		pageControl.setLayout(new FlowLayout());
+		page.setPreferredSize(new Dimension(50,30));
+		pageControl.add(backward);
+		pageControl.add(page);
+		pageControl.add(forward);
+		page.setText("0");
+		pageControl.add(go);
+		
+		forward.addActionListener(new ActionAdaptor() {
+			@Override
+			public void actionPerformed(ActionEvent e) {				
+				int start=Integer.parseInt(page.getText());
+				start+=10;
+				page.setText(""+start);
+				String tbl=(String)dbCombo.getSelectedItem();
+				tree.setTable(tbl, start);				
+			}
+		});
+		backward.addActionListener(new ActionAdaptor() {
+			@Override
+			public void actionPerformed(ActionEvent e) {				
+				int start=Integer.parseInt(page.getText());
+				start-=10;
+				if(start<0)
+					start=0;
+				page.setText(""+start);
+				String tbl=(String)dbCombo.getSelectedItem();
+				tree.setTable(tbl, start);				
+			}
+		});
+		go.addActionListener(new ActionAdaptor() {
+			@Override
+			public void actionPerformed(ActionEvent e) {				
+				int start=Integer.parseInt(page.getText());
+				String tbl=(String)dbCombo.getSelectedItem();
+				tree.setTable(tbl, start);
+			}
+		});
+
+		bottomRight=new JSplitPane(JSplitPane.VERTICAL_SPLIT){
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			public void paint(Graphics g){
+				super.paint(g);
+				if(!bottomRightPainted){
+					bottomRightPainted=true;
+					bottomRight.setDividerLocation(.93);
+				}
+			}
+		};
+		bottomRight.add(new JScrollPane(table));
+		bottomRight.add(pageControl);
+		
+		bottomRightSplit.setBottomComponent(bottomRight);
 		bottomSplit.setRightComponent(bottomRightSplit);
 
 		table.setCellSelectionEnabled(true);

@@ -26,10 +26,11 @@ public class RecordTable extends JTable implements ListSelectionListener{
 			return;
 		}
 		
+		int page=Integer.parseInt(admin.page.getText());
 		ArrayList<String> header=new ArrayList<String>();
 		header.add("Field");
 		for(int i=0;i<recordSet.value.get(0).size();i++){
-			header.add(""+(i+1));
+			header.add(""+(page+i+1));
 		}
 		
 		DefaultTableModel tableModel = new DefaultTableModel(header.toArray(), 0);
