@@ -62,6 +62,7 @@ public class SchemaTree extends JTree implements TreeSelectionListener,
 			}
 			setTable(table);
 			admin.selectDBCombo(table);
+			admin.page.setText("0");
 			
 			// show button
 			admin.tableSelected(table);
@@ -77,6 +78,7 @@ public class SchemaTree extends JTree implements TreeSelectionListener,
 		setTable(table,0);
 	}
 	public void setTable(String table,int nPage){
+		
 		if(table.equals("-")){
 			return;
 		}

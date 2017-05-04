@@ -188,6 +188,7 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 			       if (event.getStateChange() == ItemEvent.SELECTED) {
 			          Object item = event.getItem();
 			          tree.setTable((String)item);
+			          page.setText("0");
 			       }			      
 			}
 		});
@@ -431,7 +432,7 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		String sqlStr = list[dbType.ordinal()];
 		RecordSet recordSet = dbAdmin.getList(sqlStr);
 		String db="";
-		if(recordSet!=null && recordSet.value!=null && recordSet.value.get(0)!=null){
+		if(recordSet!=null && recordSet.value!=null && 0<recordSet.value.size() && recordSet.value.get(0)!=null){
 			db=(String)recordSet.value.get(0).get(0);
 		}
 		return db.trim();
