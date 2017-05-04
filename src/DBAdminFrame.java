@@ -39,7 +39,7 @@ import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DBAdminFrame extends JFrame implements MouseListener {
+public class DBAdminFrame extends JFrame {
 
 	/**
 	 * 
@@ -52,8 +52,7 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 
 	JMenuBar mb = new JMenuBar();
 	JTextArea sql = new JTextArea();
-	JTextArea result = new JTextArea();
-	JPopupMenu popup = new JPopupMenu();
+	
 	JLabel statusBar = new JLabel("");
 	String dbTable = "";
 	SchemaTree tree = new SchemaTree(this);
@@ -71,6 +70,8 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 	JSplitPane bottomRight=new JSplitPane();
 	private boolean bottomRightPainted;
 	JButton go=new JButton("Go");
+	String sortBy="";
+
 	
 	public enum Database {
 		TSQL, POSTGRES, MYSQL
@@ -92,7 +93,7 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 	public void init() {
 		dbAdmin.readIniFile();
 		setDBType();
-
+		
 		log.info("Initializing Frame");
 		JMenu mFile = new JMenu("File");
 		JMenuItem miConnect = new JMenuItem("Connect");
@@ -130,12 +131,7 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 				executeSQL();
 			}
 		});
-		miDescribe.addActionListener(new ActionAdaptor() {
-			public void actionPerformed(ActionEvent e) {
-				describeTable();
-				popup.setVisible(false);
-			}
-		});
+
 		miAllDB.addActionListener(new ActionAdaptor() {
 			public void actionPerformed(ActionEvent e) {
 				listDatabase();
@@ -148,21 +144,8 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 			}
 		});
 
-		miField.addActionListener(new ActionAdaptor() {
-			public void actionPerformed(ActionEvent e) {
-				describeField();
-				popup.setVisible(false);
-			}
-		});
-
 		setJMenuBar(mb);
-
-		result.addMouseListener(this);
-
-		popup.add(miTable);
-		popup.add(miDescribe);
-		popup.add(miField);
-
+		
 		JSplitPane splitPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 		splitPanel.setTopComponent(new JScrollPane(sql));
 
@@ -199,6 +182,8 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		JPanel pageControl=new JPanel();
 		pageControl.setLayout(new FlowLayout());
 		page.setPreferredSize(new Dimension(50,30));
+				
+		dbCombo.addItem("             -            ");
 		pageControl.add(backward);
 		pageControl.add(page);
 		pageControl.add(forward);
@@ -229,10 +214,8 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		});
 		go.addActionListener(new ActionAdaptor() {
 			@Override
-			public void actionPerformed(ActionEvent e) {				
-				int start=Integer.parseInt(page.getText());
-				String tbl=(String)dbCombo.getSelectedItem();
-				tree.setTable(tbl, start);
+			public void actionPerformed(ActionEvent e) {	
+				goPage();
 			}
 		});
 
@@ -299,8 +282,13 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		setVisible(true);
 	}	
 	
-	public void tableSelected(String tableStr) {
-		
+	public void goPage(){
+		int start=Integer.parseInt(page.getText());
+		String tbl=(String)dbCombo.getSelectedItem();
+		tree.setTable(tbl, start);
+	}
+	
+	public void tableSelected(String tableStr) {		
 		controlPanel.add(update);
 		controlPanel.add(dbCombo);
 	}
@@ -445,18 +433,6 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		new DBListFrame(this, recordSet.getFirst());
 	}
 
-	public void selectDatabase() {
-		String dbname = sql.getText();
-		if (dbname.isEmpty()) {
-			dbname = result.getSelectedText();
-		}
-		dbname = dbname.trim();
-		dbAdmin.dbName = dbname;
-		setTitle(hostname() + ":" + database());
-		popup.setVisible(false);
-		listSchemaTree();
-		setStatusBar("");
-	}
 
 	public void listSchemaTree() {
 		String list[] = new String[] { Constants.TSQL_SCHEMA, Constants.POSTGRES_SCHEMA, Constants.MYSQL_SCHEMA };
@@ -519,18 +495,7 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		}					
 	}
 
-	public void describeTable() {
-		String table = sql.getText();
-		if (table.isEmpty()) {
-			table = result.getSelectedText();
-		}
-		table = table.trim();
-		dbTable = table;
-		String res = dbAdmin.describe(table);
-		result.setText(res);
-		setTitle(table);
-		setStatusBar(" Table: " + table);
-	}
+
 
 	public Object[] listColumn(String schema, String tableStr) {
 		String list[] = new String[] { Constants.TSQL_LIST_COLUMN, Constants.POSTGRES_LIST_COLUMN,
@@ -558,25 +523,6 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		return objList;
 	}
 
-	public void describeField() {
-		String field = sql.getText();
-		if (field.isEmpty()) {
-			field = result.getSelectedText();
-		}
-		field = field.trim();
-		String list[] = new String[] { Constants.TSQL_COLUMN, Constants.POSTGRES_COLUMN, Constants.MYSQL_COLUMN };
-		String sqlStr = list[dbType.ordinal()];
-
-		String table = dbTable;
-		int index = dbTable.indexOf('.');
-		if (0 <= index) {
-			table = dbTable.substring(index + 1);
-		}
-		String res = dbAdmin.getRecord(sqlStr, new String[] { table, field });
-		result.setText(res);
-		setTitle(field);
-		setStatusBar(" Table: " + dbTable + " Field: " + field);
-	}
 
 	public void describeField(String t, String field) {
 		String list[] = new String[] { Constants.TSQL_COLUMN, Constants.POSTGRES_COLUMN, Constants.MYSQL_COLUMN };
@@ -628,32 +574,7 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		}
 	}
 
-	@Override
-	public void mouseClicked(MouseEvent e) {
-		if (e.getButton() == MouseEvent.BUTTON3) {
-			popup.setLocation(e.getLocationOnScreen());
-			popup.setVisible(true);
-		} else {
-			popup.setVisible(false);
-		}
-	}
-
-	@Override
-	public void mousePressed(MouseEvent e) {
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent e) {
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent e) {
-	}
-
-	@Override
-	public void mouseExited(MouseEvent e) {
-	}
-
+	
 	public ArrayList<Integer> setKeyList(String tbl) {
 		ArrayList<Integer> rowList = new ArrayList<>();
 		ArrayList<String> keyList = dbAdmin.getPK(tbl);

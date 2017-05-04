@@ -82,14 +82,19 @@ public class SchemaTree extends JTree implements TreeSelectionListener,
 		if(table.equals("-")){
 			return;
 		}
-			
+		
 		String[] sqlList = new String[] { Constants.TSQL_LIMIT10, Constants.POSTGRES_LIMIT10, Constants.MYSQL_LIMIT10 };
 		String sqlStr = sqlList[admin.dbType.ordinal()];
 //		if(admin.dbType==DBAdminFrame.Database.TSQL){
 //			sqlStr=String.format(sqlStr,table,nPage,nPage+10);
-//		}else{
-			sqlStr=String.format(sqlStr,table,nPage+1);
+//		}else{		
+			String sortBy="";
+			if(!admin.sortBy.isEmpty()){
+					sortBy=" ORDER BY "+admin.sortBy;
+			}
+			sqlStr=String.format(sqlStr,table,sortBy,nPage+1);
 //		}
+							
 		admin.executeSQL(sqlStr);
 		String current="";
 		if(admin.dbType==DBAdminFrame.Database.MYSQL){
@@ -101,7 +106,8 @@ public class SchemaTree extends JTree implements TreeSelectionListener,
 			}			
 		}		
 		ArrayList<Integer> keyList=admin.setKeyList(current);
-		admin.table.cellRenderer.keyList=keyList;				
+		admin.table.cellRenderer.keyList=keyList;			
+		
 	}
 
 	public void setTree(Object schemaList[]) {

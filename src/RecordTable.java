@@ -1,12 +1,19 @@
+import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.JTable;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
-public class RecordTable extends JTable implements ListSelectionListener{
+public class RecordTable extends JTable implements ListSelectionListener,ActionListener,MouseListener{
 
 	/**
 	 * 
@@ -15,11 +22,45 @@ public class RecordTable extends JTable implements ListSelectionListener{
 	
 	DBAdminFrame admin=null;
 	CellRenderer cellRenderer=new CellRenderer();
+
+	JPopupMenu popup = new JPopupMenu();
 	
 	RecordTable(DBAdminFrame admin){
 		this.admin=admin;
+
+		JMenuItem miSort=new JMenuItem("Sort by");
+		popup.add(miSort);
+		miSort.addActionListener(this);
+		
+		addMouseListener(this);
 	}
 
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		if (e.getButton() == MouseEvent.BUTTON3) {
+			popup.setLocation(e.getLocationOnScreen());
+			popup.setVisible(true);
+		} else {
+			popup.setVisible(false);
+		}
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+	}
+	
 	public void init(RecordSet recordSet) {
 		
 		if(recordSet==null || recordSet.value==null || recordSet.value.size()==0){
@@ -50,4 +91,17 @@ public class RecordTable extends JTable implements ListSelectionListener{
 			tc.setCellRenderer(cellRenderer);
 		}
 	}		
+	
+	public void actionPerformed(ActionEvent e){
+		
+		int row=rowAtPoint(popup.getLocation());				
+		String field=(String)getValueAt(row, 0);
+		if(!admin.sortBy.isEmpty()){
+			admin.sortBy+=",";
+		}
+		admin.sortBy+=field;
+		popup.setVisible(false);		
+		admin.goPage();
+	}
+
 }
