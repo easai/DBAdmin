@@ -372,18 +372,25 @@ public class DBAdmin {
 	}
 
 	public void read() {
+		System.out.print("> ");
 		Scanner sc = new Scanner(System.in);
 		while (sc.hasNext()) {
 			String str = sc.nextLine();
-			System.out.println("> " + str);
-			if (str.toUpperCase().startsWith("DESCRIBE ")) {
-				describe(str.substring(9));
-			} else if (str.toUpperCase().startsWith("QUIT")) {
+			if (str.toUpperCase().startsWith("QUIT")
+					||str.toUpperCase().startsWith("EXIT")) {
 				saveIniFile();
 				break;
 			} else {
-				getRecord(str);
+				RecordSet recordSet=getList(str);
+				for(int i=0;i<recordSet.value.size();i++){
+					ArrayList<Object> objList=recordSet.value.get(i);
+					for(int j=0;j<objList.size();j++){
+						System.out.print(objList.get(j)+", ");
+					}
+					System.out.println();
+				}
 			}
+			System.out.print("> ");
 		}
 		sc.close();
 	}

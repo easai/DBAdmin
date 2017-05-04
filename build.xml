@@ -15,6 +15,12 @@
 			</manifest>
 			<zipfileset src="deps.jar" excludes="META-INF/*.SF" />
 		</jar>
+		<jar jarfile="DBAdmin.jar" basedir="bin">
+			<manifest>
+				<attribute name="Main-Class" value="DBAdmin" />
+			</manifest>
+			<zipfileset src="deps.jar" excludes="META-INF/*.SF" />
+		</jar>
 
 	</target>
 	<target name="init">
