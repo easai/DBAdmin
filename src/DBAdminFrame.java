@@ -484,6 +484,8 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 			objList = recordSet.getFirst();
 			if (dbType != Database.MYSQL){
 				setDBCombo(objList,schema);
+			}else{
+				setDBCombo(objList);
 			}
 		}
 
@@ -498,7 +500,12 @@ public class DBAdminFrame extends JFrame implements MouseListener {
 		dbCombo.removeAll();
 		dbCombo.addItem("-");
 		for(int i=0;i<objList.length;i++){
-			dbCombo.addItem(prefix+"."+(String)objList[i]);
+			String item="";
+			if(!prefix.isEmpty()){
+				item=prefix+".";
+			}
+			item+=(String)objList[i];
+			dbCombo.addItem(item);
 		}					
 	}
 
