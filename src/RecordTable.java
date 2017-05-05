@@ -22,7 +22,7 @@ public class RecordTable extends JTable implements ListSelectionListener,ActionL
 	
 	DBAdminFrame admin=null;
 	CellRenderer cellRenderer=new CellRenderer();
-
+	Point rightClickPos=null;
 	JPopupMenu popup = new JPopupMenu();
 	
 	RecordTable(DBAdminFrame admin){
@@ -37,6 +37,7 @@ public class RecordTable extends JTable implements ListSelectionListener,ActionL
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
+		rightClickPos=e.getPoint();
 		if (e.getButton() == MouseEvent.BUTTON3) {
 			popup.setLocation(e.getLocationOnScreen());
 			popup.setVisible(true);
@@ -94,12 +95,16 @@ public class RecordTable extends JTable implements ListSelectionListener,ActionL
 	
 	public void actionPerformed(ActionEvent e){
 		
-		int row=rowAtPoint(popup.getLocation());				
-		String field=(String)getValueAt(row, 0);
+		int row=rowAtPoint(rightClickPos);
+		
+		String field=(String)getValueAt(row, 0);	
+/*
 		if(!admin.sortBy.isEmpty()){
 			admin.sortBy+=",";
 		}
 		admin.sortBy+=field;
+		*/
+		admin.sortBy=field;
 		popup.setVisible(false);		
 		admin.goPage();
 	}
