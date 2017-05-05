@@ -89,6 +89,12 @@ public class DBAdminFrame extends JFrame {
 			bottomSplit.setDividerLocation(.25);
 		}
 	}
+	
+	public void initTableView(String tableStr){
+		sortBy="";
+		selectDBCombo(tableStr);
+		page.setText("0");
+	}
 
 	public void init() {
 		dbAdmin.readIniFile();
@@ -110,9 +116,6 @@ public class DBAdminFrame extends JFrame {
 		JMenu mDatabase = new JMenu("Database");
 		JMenuItem miAllDB = new JMenuItem("Database");
 		JMenuItem miSchema = new JMenuItem("Schema");
-		JMenuItem miTable = new JMenuItem("Table");
-		JMenuItem miDescribe = new JMenuItem("Describe Schema.Table");
-		JMenuItem miField = new JMenuItem("Describe Field");
 		mDatabase.add(miAllDB);
 		mb.add(mDatabase);
 
@@ -171,12 +174,11 @@ public class DBAdminFrame extends JFrame {
 			       if (event.getStateChange() == ItemEvent.SELECTED) {
 			          Object item = event.getItem();
 			          tree.setTable((String)item);
-			          page.setText("0");
+			          initTableView((String)item);
 			       }			      
 			}
 		});
 		
-//		controlPanel.add(pageCombo);
 		bottomRightSplit.setTopComponent(controlPanel);
 		
 		JPanel pageControl=new JPanel();
