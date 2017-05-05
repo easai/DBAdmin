@@ -78,8 +78,6 @@ public class SchemaTree extends JTree implements TreeSelectionListener,
 	}
 	public void setTable(String table,int nPage){
 		
-		System.out.println(table+", "+nPage);
-		
 		if(table.equals("-")){
 			return;
 		}
